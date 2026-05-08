@@ -10,7 +10,6 @@ import { createClient } from "@/lib/supabase/server";
 import { formatFollowers } from "@/lib/utils/format";
 import { getCountry } from "@/lib/constants/countries";
 import { getPlatform } from "@/lib/constants/platforms";
-import type { CreatorSnapshot } from "@/lib/types";
 
 interface CreatorPageProps {
   params: Promise<{ handle: string }>;
@@ -121,12 +120,9 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
   // Build per-platform chart series
   const platformSeries: PlatformSeries = {};
-  for (const snap of (snapshots as CreatorSnapshot[] & { snapshot_date: string }[]) ?? []) {
-    const plat = (snap as unknown as { platform: string; followers: number; snapshot_date: string }).platform;
-    const date = (snap as unknown as { snapshot_date: string }).snapshot_date;
-    const followers = (snap as unknown as { followers: number }).followers;
-    if (!platformSeries[plat]) platformSeries[plat] = [];
-    platformSeries[plat].push({ date, followers });
+  for (const snap of (snapshots ?? []) as Array<{ platform: string; followers: number; snapshot_date: string }>) {
+    if (!platformSeries[snap.platform]) platformSeries[snap.platform] = [];
+    platformSeries[snap.platform].push({ date: snap.snapshot_date, followers: snap.followers });
   }
 
   const platforms = creator.platforms as Array<{
@@ -358,7 +354,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
                   </div>
                   {/* Growth delta */}
                   <div className="mt-2 text-[10px]">
-                    {delta !== null ? (
+                    {delta != null ? (
                       <StatDelta value={delta} />
                     ) : (
                       <span className="text-[#4A4560]">—</span>
