@@ -28,8 +28,7 @@ async function getYouTubeStats(
   };
 
   if (data.error) {
-    console.error("[sync-youtube] API error (handle):", data.error.message);
-    return null;
+    throw new Error(`YouTube API error (handle): ${data.error.message}`);
   }
 
   if (!data.items?.length) {
@@ -40,17 +39,12 @@ async function getYouTubeStats(
       error?: { message: string };
     };
     if (data.error) {
-      console.error(
-        "[sync-youtube] API error (username):",
-        data.error.message
-      );
-      return null;
+      throw new Error(`YouTube API error (username): ${data.error.message}`);
     }
   }
 
   if (!data.items?.length) {
-    console.warn(`[sync-youtube] No channel found for handle: ${handle}`);
-    return null;
+    throw new Error(`No YouTube channel found for handle: ${handle}`);
   }
 
   const channel = data.items[0];
