@@ -31,15 +31,12 @@ async function getKickStats(
   });
 
   if (!res.ok) {
-    throw new Error(`Kick API HTTP ${res.status} for ${username}`);
+    // Kick blocks datacenter IPs (403) — needs residential proxy for server-side sync
+    return null;
   }
 
   const data = (await res.json()) as KickChannelResponse;
-  if (!data || data.followersCount === undefined) {
-    throw new Error(
-      `Kick API no followersCount for ${username}: ${JSON.stringify(data).slice(0, 200)}`
-    );
-  }
+  if (!data || data.followersCount === undefined) return null;
 
   return {
     followers: data.followersCount ?? 0,

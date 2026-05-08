@@ -10,7 +10,7 @@
     },
     {
       "path": "/api/cron/sync-kick",
-      "schedule": "*/10 * * * *"
+      "schedule": "0 */6 * * *"
     },
     {
       "path": "/api/cron/compute-scores",
