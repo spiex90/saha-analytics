@@ -13,12 +13,20 @@
       "schedule": "0 */6 * * *"
     },
     {
+      "path": "/api/cron/sync-saha",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/compute-growth",
+      "schedule": "0 3 * * *"
+    },
+    {
       "path": "/api/cron/compute-scores",
-      "schedule": "15 * * * *"
+      "schedule": "15 3 * * *"
     },
     {
       "path": "/api/cron/compute-rankings",
-      "schedule": "30 * * * *"
+      "schedule": "30 3 * * *"
     }
   ]
 }

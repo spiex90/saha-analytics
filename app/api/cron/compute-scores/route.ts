@@ -7,11 +7,6 @@ interface CreatorPlatformRow {
   followers: number;
 }
 
-interface SnapshotRow {
-  platform: string;
-  followers: number;
-  taken_at: string;
-}
 
 export async function GET(request: NextRequest) {
   const secret = request.headers.get("authorization")?.replace("Bearer ", "");
@@ -37,17 +32,26 @@ export async function GET(request: NextRequest) {
 
   for (const creator of creators ?? []) {
     try {
-      const [{ data: platforms }, { data: snapshots }] = await Promise.all([
+      const [
+        { data: platforms },
+        { data: snapshots },
+        { data: growthRow },
+      ] = await Promise.all([
         supabase
           .from("creator_platforms")
           .select("platform, followers")
           .eq("creator_id", creator.id as string),
         supabase
           .from("creator_snapshots")
-          .select("platform, followers, taken_at")
+          .select("id")
           .eq("creator_id", creator.id as string)
-          .gte("taken_at", thirtyDaysAgo)
-          .order("taken_at", { ascending: true }),
+          .gte("taken_at", thirtyDaysAgo),
+        supabase
+          .from("creator_growth")
+          .select("growth_pct")
+          .eq("creator_id", creator.id as string)
+          .eq("period", "30d")
+          .maybeSingle(),
       ]);
 
       const totalFollowers = (platforms as CreatorPlatformRow[] ?? []).reduce(
@@ -58,17 +62,19 @@ export async function GET(request: NextRequest) {
         (p) => p.followers > 0
       ).length;
 
-      // Monthly growth: compare first snapshot vs latest
-      const snapshotList = snapshots as SnapshotRow[] ?? [];
-      const firstTotal = snapshotList.slice(0, 5).reduce((s, p) => s + p.followers, 0) / Math.max(snapshotList.slice(0, 5).length, 1);
-      const lastTotal = snapshotList.slice(-5).reduce((s, p) => s + p.followers, 0) / Math.max(snapshotList.slice(-5).length, 1);
-      const monthlyGrowthRate =
-        firstTotal > 0 ? (lastTotal - firstTotal) / firstTotal : 0;
+      // Monthly growth rate: read from creator_growth (populated by compute-growth cron).
+      // growth_pct is a percentage (e.g. 5.0 = 5%); computeGrowthScore expects decimal (0.05).
+      const monthlyGrowthRate = growthRow?.growth_pct
+        ? Number(growthRow.growth_pct) / 100
+        : 0;
+
+      // Snapshot count for activity score (how many daily snapshots in last 30 days)
+      const snapshotCount30Days = snapshots?.length ?? 0;
 
       const score = computeSAHAScore({
         totalFollowers,
         monthlyGrowthRate,
-        snapshotCount30Days: snapshotList.length,
+        snapshotCount30Days,
         activePlatformCount,
       });
 

@@ -132,14 +132,7 @@ export async function GET(request: NextRequest) {
           .eq("id", platform.creator_id as string);
       }
 
-      // Write snapshot
-      await supabase.from("creator_snapshots").insert({
-        creator_id: platform.creator_id as string,
-        platform: "twitch",
-        followers,
-        taken_at: new Date().toISOString(),
-      });
-
+      // Snapshots are written once daily by sync-saha, not here.
       results.updated++;
     } catch {
       results.errors++;
