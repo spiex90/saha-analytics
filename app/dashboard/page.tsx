@@ -5,11 +5,12 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { StatCard } from "@/components/shared/stat-card";
 import { formatFollowers, formatScore } from "@/lib/utils/format";
 import { getCountry } from "@/lib/constants/countries";
-import { getPlatform } from "@/lib/constants/platforms";
-import { Users, Radio, Trophy } from "lucide-react";
+import { Users, Radio, Trophy, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import type { CreatorWithStats } from "@/lib/types";
+
+type RankRow = { rank: number; score: number; creator: CreatorWithStats };
 
 async function getDashboardData() {
   const supabase = await createClient();
@@ -19,6 +20,7 @@ async function getDashboardData() {
     { count: liveNow },
     { data: kuwaitTop },
     { data: gccTop },
+    { data: fastestKuwait },
   ] = await Promise.all([
     supabase
       .from("creators")
@@ -31,26 +33,35 @@ async function getDashboardData() {
     supabase
       .from("rankings")
       .select(
-        `rank, creator:creators!inner(*, platforms:creator_platforms(*), score:creator_scores(*))`
+        `rank, score, creator:creators!inner(*, platforms:creator_platforms(*), score:creator_scores(*))`
       )
-      .eq("scope", "kuwait")
+      .eq("scope", "country_KW")
       .order("rank", { ascending: true })
       .limit(10),
     supabase
       .from("rankings")
       .select(
-        `rank, creator:creators!inner(*, platforms:creator_platforms(*), score:creator_scores(*))`
+        `rank, score, creator:creators!inner(*, platforms:creator_platforms(*), score:creator_scores(*))`
       )
       .eq("scope", "gcc")
       .order("rank", { ascending: true })
       .limit(10),
+    supabase
+      .from("rankings")
+      .select(
+        `rank, score, creator:creators!inner(*, platforms:creator_platforms(*), score:creator_scores(*))`
+      )
+      .eq("scope", "fastest_KW")
+      .order("rank", { ascending: true })
+      .limit(5),
   ]);
 
   return {
     totalCreators: totalCreators ?? 0,
     liveNow: liveNow ?? 0,
-    kuwaitTop: (kuwaitTop ?? []) as unknown as { rank: number; creator: CreatorWithStats }[],
-    gccTop: (gccTop ?? []) as unknown as { rank: number; creator: CreatorWithStats }[],
+    kuwaitTop: (kuwaitTop ?? []) as unknown as RankRow[],
+    gccTop: (gccTop ?? []) as unknown as RankRow[],
+    fastestKuwait: (fastestKuwait ?? []) as unknown as RankRow[],
   };
 }
 
@@ -118,12 +129,85 @@ async function KPISection() {
 }
 
 async function RankingTables() {
-  const { kuwaitTop, gccTop } = await getDashboardData();
+  const { kuwaitTop, gccTop, fastestKuwait } = await getDashboardData();
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <RankTable title="🇰🇼 Kuwait Top 10" rows={kuwaitTop} />
-      <RankTable title="🌍 GCC Top 10" rows={gccTop} />
+    <div className="space-y-6">
+      {/* Fastest Growing — hero leaderboard */}
+      {fastestKuwait.length > 0 && (
+        <FastestGrowingTable rows={fastestKuwait} />
+      )}
+
+      {/* Top Rankings */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RankTable title="🇰🇼 Kuwait Top 10" rows={kuwaitTop} />
+        <RankTable title="🌍 GCC Top 10" rows={gccTop} />
+      </div>
+    </div>
+  );
+}
+
+function FastestGrowingTable({ rows }: { rows: RankRow[] }) {
+  return (
+    <div className="border border-[#3FB950]/20 bg-[#0F1118]">
+      <div className="px-4 py-3 border-b border-[#3FB950]/20 flex items-center gap-2">
+        <TrendingUp className="w-3.5 h-3.5 text-[#3FB950]" />
+        <h2 className="font-serif text-sm text-[#F5EFE0]">
+          🚀 Fastest Growing in Kuwait
+        </h2>
+        <span className="text-xs text-[#4A4560] ml-auto">30-day followers gained</span>
+      </div>
+      <div className="divide-y divide-[#2A263A]">
+        {rows.map(({ rank, score, creator }) => {
+          const country = getCountry(creator.country_code);
+          const totalFollowers = (creator.platforms ?? []).reduce(
+            (sum, p) => sum + (p.followers ?? 0),
+            0
+          );
+          return (
+            <div
+              key={creator.id}
+              className="flex items-center gap-3 px-4 py-3 hover:bg-[#19162A] transition-colors"
+            >
+              <span className="text-xs text-[#3FB950] font-medium tabular-nums w-5">
+                #{rank}
+              </span>
+              <Link
+                href={`/creator/${creator.handle}`}
+                className="flex items-center gap-2 flex-1 min-w-0 group"
+              >
+                {creator.avatar_url ? (
+                  <Image
+                    src={creator.avatar_url}
+                    alt={creator.name_en}
+                    width={28}
+                    height={28}
+                    className="object-cover shrink-0"
+                  />
+                ) : (
+                  <div className="w-7 h-7 bg-[#19162A] flex items-center justify-center text-[#A7A0B8] text-xs font-serif shrink-0">
+                    {creator.name_en[0]?.toUpperCase()}
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <div className="text-xs text-[#F5EFE0] group-hover:text-[#F4A52C] transition-colors truncate">
+                    {country?.flag} {creator.name_en}
+                  </div>
+                  <div className="text-[10px] text-[#4A4560]">
+                    {formatFollowers(totalFollowers)} total
+                  </div>
+                </div>
+              </Link>
+              <div className="text-right shrink-0">
+                <div className="text-sm font-medium text-[#3FB950] tabular-nums">
+                  +{Number(score).toLocaleString()}
+                </div>
+                <div className="text-[10px] text-[#4A4560]">followers</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -133,7 +217,7 @@ function RankTable({
   rows,
 }: {
   title: string;
-  rows: { rank: number; creator: CreatorWithStats }[];
+  rows: RankRow[];
 }) {
   return (
     <div className="border border-[#2A263A]">
@@ -143,16 +227,16 @@ function RankTable({
       <table className="w-full">
         <thead>
           <tr className="border-b border-[#2A263A]">
-            <th className="text-left px-3 py-2 text-xs text-[#A7A0B8] uppercase tracking-widest font-medium w-8">
+            <th className="text-left px-3 py-2 text-[10px] text-[#4A4560] uppercase tracking-widest font-medium w-8">
               #
             </th>
-            <th className="text-left px-3 py-2 text-xs text-[#A7A0B8] uppercase tracking-widest font-medium">
+            <th className="text-left px-3 py-2 text-[10px] text-[#4A4560] uppercase tracking-widest font-medium">
               Creator
             </th>
-            <th className="text-right px-3 py-2 text-xs text-[#A7A0B8] uppercase tracking-widest font-medium">
+            <th className="text-right px-3 py-2 text-[10px] text-[#4A4560] uppercase tracking-widest font-medium">
               Followers
             </th>
-            <th className="text-right px-3 py-2 text-xs text-[#A7A0B8] uppercase tracking-widest font-medium">
+            <th className="text-right px-3 py-2 text-[10px] text-[#4A4560] uppercase tracking-widest font-medium">
               Score
             </th>
           </tr>
@@ -162,7 +246,7 @@ function RankTable({
             <tr>
               <td
                 colSpan={4}
-                className="px-3 py-8 text-center text-[#A7A0B8] text-xs"
+                className="px-3 py-8 text-center text-[#4A4560] text-xs"
               >
                 No data yet
               </td>
@@ -179,7 +263,7 @@ function RankTable({
             return (
               <tr
                 key={creator.id}
-                className="border-b border-[#2A263A] last:border-0 hover:bg-[#0F1118] transition-colors"
+                className="border-b border-[#2A263A] last:border-0 hover:bg-[#19162A] transition-colors"
               >
                 <td className="px-3 py-2.5 text-xs text-[#A7A0B8] tabular-nums">
                   {rank}
@@ -243,13 +327,16 @@ function KPISkeleton() {
 
 function TablesSkeleton() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {Array.from({ length: 2 }).map((_, i) => (
-        <div
-          key={i}
-          className="border border-[#2A263A] bg-[#0F1118] h-64 animate-pulse"
-        />
-      ))}
+    <div className="space-y-6">
+      <div className="border border-[#3FB950]/20 bg-[#0F1118] h-48 animate-pulse" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {Array.from({ length: 2 }).map((_, i) => (
+          <div
+            key={i}
+            className="border border-[#2A263A] bg-[#0F1118] h-64 animate-pulse"
+          />
+        ))}
+      </div>
     </div>
   );
 }
