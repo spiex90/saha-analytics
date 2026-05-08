@@ -10,6 +10,7 @@ import {
   Bookmark,
   Settings,
   ShieldCheck,
+  BarChart2,
 } from "lucide-react";
 
 interface NavItem {
@@ -21,6 +22,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart2 },
   { href: "/discover", label: "Discover", icon: Search },
   { href: "/discover?sort=rank", label: "Rankings", icon: Trophy },
   { href: "/brand/lists", label: "Lists", icon: Bookmark, roles: ["brand"] },
