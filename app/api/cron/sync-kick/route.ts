@@ -30,10 +30,16 @@ async function getKickStats(
     cache: "no-store",
   });
 
-  if (!res.ok) return null;
+  if (!res.ok) {
+    throw new Error(`Kick API HTTP ${res.status} for ${username}`);
+  }
 
   const data = (await res.json()) as KickChannelResponse;
-  if (!data || data.followersCount === undefined) return null;
+  if (!data || data.followersCount === undefined) {
+    throw new Error(
+      `Kick API no followersCount for ${username}: ${JSON.stringify(data).slice(0, 200)}`
+    );
+  }
 
   return {
     followers: data.followersCount ?? 0,
@@ -59,7 +65,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const results = { updated: 0, errors: 0, skipped: 0 };
+  const results: { updated: number; errors: number; skipped: number; errorDetails: string[] } = { updated: 0, errors: 0, skipped: 0, errorDetails: [] };
 
   for (const platform of platforms ?? []) {
     try {
@@ -98,8 +104,9 @@ export async function GET(request: NextRequest) {
       });
 
       results.updated++;
-    } catch {
+    } catch (err) {
       results.errors++;
+      results.errorDetails.push(String(err));
     }
   }
 
