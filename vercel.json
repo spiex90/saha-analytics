@@ -9,6 +9,10 @@
       "schedule": "0 * * * *"
     },
     {
+      "path": "/api/cron/sync-kick",
+      "schedule": "*/10 * * * *"
+    },
+    {
       "path": "/api/cron/compute-scores",
       "schedule": "15 * * * *"
     },
