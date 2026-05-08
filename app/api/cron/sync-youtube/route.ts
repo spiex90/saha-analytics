@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 interface YTChannelResponse {
   items?: Array<{
+    id: string;
     statistics: {
       subscriberCount?: string;
       viewCount?: string;
@@ -13,26 +14,52 @@ interface YTChannelResponse {
 
 async function getYouTubeStats(
   handle: string
-): Promise<{ subscribers: number; views: number; videos: number } | null> {
+): Promise<{
+  subscribers: number;
+  views: number;
+  videos: number;
+  channelId?: string;
+} | null> {
   // Try by handle first (@spiex90), then by username fallback
   const handleUrl = `https://www.googleapis.com/youtube/v3/channels?part=statistics&forHandle=@${handle}&key=${process.env.YOUTUBE_API_KEY}`;
   let res = await fetch(handleUrl);
-  let data = (await res.json()) as YTChannelResponse;
+  let data = (await res.json()) as YTChannelResponse & {
+    error?: { message: string };
+  };
+
+  if (data.error) {
+    console.error("[sync-youtube] API error (handle):", data.error.message);
+    return null;
+  }
 
   if (!data.items?.length) {
     // Fallback: try forUsername
     const usernameUrl = `https://www.googleapis.com/youtube/v3/channels?part=statistics&forUsername=${handle}&key=${process.env.YOUTUBE_API_KEY}`;
     res = await fetch(usernameUrl);
-    data = (await res.json()) as YTChannelResponse;
+    data = (await res.json()) as YTChannelResponse & {
+      error?: { message: string };
+    };
+    if (data.error) {
+      console.error(
+        "[sync-youtube] API error (username):",
+        data.error.message
+      );
+      return null;
+    }
   }
 
-  if (!data.items?.length) return null;
+  if (!data.items?.length) {
+    console.warn(`[sync-youtube] No channel found for handle: ${handle}`);
+    return null;
+  }
 
-  const stats = data.items[0].statistics;
+  const channel = data.items[0];
+  const stats = channel.statistics;
   return {
     subscribers: parseInt(stats.subscriberCount ?? "0", 10),
     views: parseInt(stats.viewCount ?? "0", 10),
     videos: parseInt(stats.videoCount ?? "0", 10),
+    channelId: channel.id,
   };
 }
 
@@ -53,7 +80,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const results = { updated: 0, errors: 0, skipped: 0 };
+  const results: { updated: number; errors: number; skipped: number; errorDetails: string[] } = { updated: 0, errors: 0, skipped: 0, errorDetails: [] };
 
   for (const platform of platforms ?? []) {
     try {
@@ -66,18 +93,17 @@ export async function GET(request: NextRequest) {
         continue;
       }
 
-      // Update platform row
+      // Update platform row — store real YouTube channel ID if we got one
+      const updatePayload: Record<string, unknown> = {
+        followers: stats.subscribers,
+        last_synced_at: new Date().toISOString(),
+      };
+      if (stats.channelId) {
+        updatePayload.platform_user_id = stats.channelId;
+      }
       await supabase
         .from("creator_platforms")
-        .update({
-          followers: stats.subscribers,
-          platform_user_id:
-            (platform.platform_user_id as string)?.startsWith("spiex") ||
-            !platform.platform_user_id
-              ? `yt_${platform.platform_username}`
-              : platform.platform_user_id,
-          last_synced_at: new Date().toISOString(),
-        })
+        .update(updatePayload)
         .eq("id", platform.id as string);
 
       // Write snapshot
@@ -89,8 +115,9 @@ export async function GET(request: NextRequest) {
       });
 
       results.updated++;
-    } catch {
+    } catch (err) {
       results.errors++;
+      results.errorDetails.push(String(err));
     }
   }
 

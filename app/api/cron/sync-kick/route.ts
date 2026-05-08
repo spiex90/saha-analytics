@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 interface KickChannelResponse {
   id?: number;
   slug?: string;
-  followers_count?: number;
+  followersCount?: number;
   livestream?: {
     id: number;
     is_live?: boolean;
@@ -33,10 +33,10 @@ async function getKickStats(
   if (!res.ok) return null;
 
   const data = (await res.json()) as KickChannelResponse;
-  if (!data || data.followers_count === undefined) return null;
+  if (!data || data.followersCount === undefined) return null;
 
   return {
-    followers: data.followers_count ?? 0,
+    followers: data.followersCount ?? 0,
     is_live: data.livestream != null,
     user_id: data.id ? String(data.id) : username,
   };

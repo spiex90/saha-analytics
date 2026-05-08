@@ -42,3 +42,5 @@ next-env.d.ts
 # SAHA Analytics env - DO NOT COMMIT
 .env.local
 .env
+
+.vercel
