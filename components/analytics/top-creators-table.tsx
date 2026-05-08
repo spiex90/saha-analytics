@@ -14,6 +14,12 @@ interface TopCreatorsTableProps {
   currentHandle: string;
 }
 
+function scoreColor(score: number): string {
+  if (score >= 70) return "#F4A52C";
+  if (score >= 50) return "#3FB950";
+  return "#A7A0B8";
+}
+
 export function TopCreatorsTable({
   creators,
   currentHandle,
@@ -21,10 +27,10 @@ export function TopCreatorsTable({
   return (
     <div className="border border-[#2A263A] bg-[#0F1118] p-5">
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-sm font-medium text-[#F5EFE0]">
-            Top Creators — Kuwait
+            Top Creators in Kuwait
           </h2>
           <p className="text-xs text-[#A7A0B8] mt-0.5" dir="rtl">
             أفضل المنشئين في الكويت
@@ -32,20 +38,20 @@ export function TopCreatorsTable({
         </div>
         <Link
           href="/discover?sort=rank"
-          className="text-xs text-[#F4A52C] hover:underline border border-[#F4A52C]/30 px-2 py-1 hover:border-[#F4A52C] transition-colors"
+          className="text-xs text-[#F4A52C] hover:underline border border-[#F4A52C]/30 px-2 py-1 hover:border-[#F4A52C] transition-colors whitespace-nowrap"
         >
           View Full Leaderboard
         </Link>
       </div>
 
       {/* Table */}
-      <div className="space-y-0.5">
+      <div className="space-y-0">
         {/* Column headers */}
-        <div className="grid grid-cols-[auto_1fr_auto_auto] gap-4 px-3 py-2 text-[10px] uppercase tracking-widest text-[#A7A0B8]">
+        <div className="grid grid-cols-[auto_1fr_auto_auto] gap-4 px-3 py-2 text-[10px] uppercase tracking-widest text-[#A7A0B8] border-b border-[#2A263A]">
           <span>Rank</span>
           <span>Creator</span>
-          <span className="text-right">Score</span>
-          <span className="text-right">30d Growth</span>
+          <span className="text-right">SAHA Score</span>
+          <span className="text-right">30-Day Growth</span>
         </div>
 
         {/* Rows */}
@@ -59,63 +65,51 @@ export function TopCreatorsTable({
               key={creator.handle}
               className={
                 isSelf
-                  ? "grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center px-3 py-3 border-l-2 border-[#F4A52C] bg-[#19162A]"
-                  : "grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center px-3 py-3 border border-transparent hover:bg-[#19162A] transition-colors"
+                  ? "grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center px-3 py-3 bg-[#F4A52C]/10 border border-[#F4A52C]/20"
+                  : "grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center px-3 py-3 border-b border-[#2A263A]/50 hover:bg-[#19162A] transition-colors"
               }
             >
               {/* Rank */}
-              <span
-                className={
-                  isSelf
-                    ? "text-sm font-medium text-[#F4A52C] w-6 text-center"
-                    : "text-sm text-[#A7A0B8] w-6 text-center"
-                }
-              >
-                {creator.rank}
+              <span className="text-xs text-[#A7A0B8] w-6 text-center">
+                #{creator.rank}
               </span>
 
               {/* Creator */}
-              <div className="min-w-0">
-                <p
-                  className={
-                    isSelf
-                      ? "text-sm font-medium text-[#F5EFE0] truncate"
-                      : "text-sm text-[#F5EFE0] truncate"
-                  }
+              <div className="flex items-center gap-2 min-w-0">
+                <div
+                  className="w-8 h-8 rounded-full bg-[#19162A] border border-[#2A263A] flex items-center justify-center shrink-0 text-[10px] font-medium text-[#A7A0B8]"
                 >
-                  {creator.nameEn}
-                  {isSelf && (
-                    <span className="ml-1.5 text-[10px] text-[#F4A52C] border border-[#F4A52C]/40 px-1">
-                      YOU
-                    </span>
-                  )}
-                </p>
-                <p className="text-[10px] text-[#A7A0B8]">@{creator.handle}</p>
+                  {creator.handle.slice(0, 2).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-[#F5EFE0] truncate">
+                    @{creator.handle}
+                    {isSelf && (
+                      <span className="ml-1.5 text-[10px] text-[#F4A52C] border border-[#F4A52C]/40 px-1">
+                        YOU
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-[10px] text-[#4A4560] truncate">{creator.nameEn}</p>
+                </div>
               </div>
 
               {/* Score */}
               <span
-                className={
-                  isSelf
-                    ? "text-sm font-medium text-[#F4A52C] text-right"
-                    : "text-sm text-[#F5EFE0] text-right"
-                }
+                className="text-sm font-medium text-right"
+                style={{ color: scoreColor(creator.score) }}
               >
                 {creator.score}
               </span>
 
               {/* Growth */}
-              <span className="text-sm text-[#3FB950] text-right">
-                +{creator.growth.toFixed(1)}%
+              <span className="text-sm text-[#3FB950] text-right whitespace-nowrap">
+                +{creator.growth.toFixed(1)}% ↑
               </span>
             </div>
           );
         })}
       </div>
-
-      <p className="text-[10px] text-[#A7A0B8] mt-3 px-3">
-        * Mock data — TODO: replace with real creators from public.creators + creator_scores
-      </p>
     </div>
   );
 }

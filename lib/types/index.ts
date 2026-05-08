@@ -94,6 +94,56 @@ export interface SavedListItem {
   added_at: string;
 }
 
+// ─────────────────────────────────────────────────────────────────
+// ANALYTICS v2 — new score & rank history tables
+// ─────────────────────────────────────────────────────────────────
+
+export type MomentumLabel =
+  | "Cooling Down"
+  | "Stable"
+  | "Building Momentum"
+  | "Rising Fast"
+  | "Exploding";
+
+export interface CreatorDailyScore {
+  id: number;
+  creator_id: string;
+  saha_score: number;
+  growth_score: number;
+  momentum_score: number;
+  consistency_score: number;
+  presence_score: number;
+  rank_score: number;
+  rank_country: number | null;
+  rank_arab_world: number | null;
+  rank_genre: number | null;
+  primary_genre: string | null;
+  calculated_date: string;
+  created_at: string;
+}
+
+export interface CreatorRankSnapshot {
+  id: number;
+  creator_id: string;
+  country: string | null;
+  primary_genre: string | null;
+  rank_country: number | null;
+  rank_arab_world: number | null;
+  rank_genre: number | null;
+  total_followers: number;
+  saha_score: number;
+  snapshot_date: string;
+  created_at: string;
+}
+
+export interface CreatorGrowth {
+  creator_id: string;
+  period: "1d" | "7d" | "30d" | "90d";
+  followers_start: number;
+  followers_end: number;
+  computed_at: string;
+}
+
 /* Enriched view types — joined across tables */
 export interface CreatorWithStats extends Creator {
   platforms: CreatorPlatform[];

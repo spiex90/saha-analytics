@@ -3,6 +3,7 @@ interface SparklineProps {
   color?: string;
   width?: number;
   height?: number;
+  type?: "line" | "bar";
 }
 
 export function Sparkline({
@@ -10,6 +11,7 @@ export function Sparkline({
   color = "#F4A52C",
   width = 64,
   height = 28,
+  type = "line",
 }: SparklineProps) {
   if (!data || data.length < 2) return null;
 
@@ -20,6 +22,40 @@ export function Sparkline({
   const pad = 2;
   const innerW = width - pad * 2;
   const innerH = height - pad * 2;
+
+  if (type === "bar") {
+    const barCount = data.length;
+    const barGap = 1;
+    const barW = Math.max(1, (innerW - barGap * (barCount - 1)) / barCount);
+
+    return (
+      <svg
+        width={width}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
+        fill="none"
+        aria-hidden="true"
+      >
+        {data.map((v, i) => {
+          const normalised = (v - min) / range;
+          const barH = Math.max(2, normalised * innerH);
+          const x = pad + i * (barW + barGap);
+          const y = pad + innerH - barH;
+          return (
+            <rect
+              key={i}
+              x={x.toFixed(1)}
+              y={y.toFixed(1)}
+              width={barW.toFixed(1)}
+              height={barH.toFixed(1)}
+              fill={color}
+              opacity={0.85}
+            />
+          );
+        })}
+      </svg>
+    );
+  }
 
   const points = data.map((v, i) => {
     const x = pad + (i / (data.length - 1)) * innerW;

@@ -26,7 +26,6 @@ function PercentileRing({ value }: { value: number }) {
         fill="none"
         aria-label={`${value}% percentile`}
       >
-        {/* Track */}
         <circle
           cx={cx}
           cy={cy}
@@ -34,7 +33,6 @@ function PercentileRing({ value }: { value: number }) {
           stroke="#2A263A"
           strokeWidth={strokeWidth}
         />
-        {/* Progress */}
         <circle
           cx={cx}
           cy={cy}
@@ -63,46 +61,57 @@ export function RankingMovement({
   return (
     <div className="border border-[#2A263A] bg-[#0F1118] p-5">
       {/* Header */}
-      <div className="mb-4">
-        <h2 className="text-sm font-medium text-[#F5EFE0]">Ranking Movement</h2>
-        <p className="text-xs text-[#A7A0B8] mt-0.5" dir="rtl">
-          حركة الترتيب
-        </p>
+      <div className="mb-4 pb-3 border-b border-[#2A263A] flex items-center justify-between">
+        <div>
+          <h2 className="text-[10px] font-mono uppercase tracking-widest text-[#A7A0B8]">
+            Index Movement
+          </h2>
+          <p className="text-[10px] font-mono text-[#4A4560] mt-0.5" dir="rtl">
+            حركة الترتيب · DELTA
+          </p>
+        </div>
+        <span className="text-[9px] font-mono tracking-widest text-[#4A4560]">
+          AS OF TODAY
+        </span>
       </div>
 
-      {/* Three columns */}
-      <div className="grid grid-cols-3 gap-4 divide-x divide-[#2A263A]">
-        {/* Column 1: Rank change */}
-        <div className="flex flex-col items-center text-center gap-1">
-          <div className="flex items-center gap-1">
-            <span className="text-[#3FB950] text-2xl leading-none">↑</span>
-            <span className="font-serif text-4xl text-[#3FB950] leading-none">
+      {/* Three stat columns */}
+      <div className="grid grid-cols-3">
+        {/* Column 1: Rank delta */}
+        <div className="flex flex-col items-center text-center gap-1 pr-4">
+          <p className="text-[9px] font-mono tracking-widest text-[#4A4560] mb-1">RANK.DELTA</p>
+          <div className="flex items-baseline gap-1">
+            <span className="text-[#3FB950] text-base font-mono leading-none">▲</span>
+            <span className="font-serif text-5xl text-[#F5EFE0] leading-none tabular-nums">
               {Math.abs(rankChange)}
             </span>
           </div>
-          <p className="text-xs text-[#F5EFE0] mt-1">places this week</p>
-          <p className="text-[10px] text-[#A7A0B8]" dir="rtl">
-            مراكز هذا الأسبوع
+          <p className="text-[9px] font-mono tracking-widest text-[#4A4560] mt-1 uppercase">PLACES</p>
+          <p className="text-[9px] font-mono tracking-widest text-[#4A4560] uppercase">THIS WEEK</p>
+          <p className="text-[9px] font-mono text-[#3FB950] mt-1" dir="rtl">
+            تحسن هذا الأسبوع
           </p>
         </div>
 
         {/* Column 2: Genre rank */}
-        <div className="flex flex-col items-center text-center gap-1 pl-4">
-          <span className="font-serif text-4xl text-[#F4A52C] leading-none">
+        <div className="flex flex-col items-center text-center gap-1 border-l border-[#2A263A] px-4">
+          <p className="text-[9px] font-mono tracking-widest text-[#4A4560] mb-1">GENRE.RNK</p>
+          <span className="font-serif text-5xl text-[#F4A52C] leading-none tabular-nums">
             #{genreRank}
           </span>
-          <p className="text-xs text-[#F5EFE0] mt-1">{genreLabel}</p>
-          <p className="text-[10px] text-[#A7A0B8] text-center" dir="rtl">
-            في تصنيف {genreLabel} بالكويت
+          <p className="text-[10px] font-mono text-[#F5EFE0] mt-1 uppercase tracking-widest">{genreLabel} KW</p>
+          <p className="text-[9px] font-mono text-[#4A4560]" dir="rtl">
+            في تصنيف الكويت
           </p>
         </div>
 
-        {/* Column 3: Percentile ring */}
-        <div className="flex flex-col items-center text-center gap-1 pl-4">
+        {/* Column 3: Percentile */}
+        <div className="flex flex-col items-center text-center gap-1 border-l border-[#2A263A] pl-4">
+          <p className="text-[9px] font-mono tracking-widest text-[#4A4560] mb-1">PERCENTILE</p>
           <PercentileRing value={percentile} />
-          <p className="text-xs text-[#F5EFE0]">Outperforming of creators</p>
-          <p className="text-[10px] text-[#A7A0B8]" dir="rtl">
-            يتفوق على المبدعين
+          <p className="text-[9px] font-mono tracking-widest text-[#F5EFE0] mt-1 uppercase">Outperforming</p>
+          <p className="text-[9px] font-mono text-[#4A4560]" dir="rtl">
+            يتفوق على {percentile}%
           </p>
         </div>
       </div>

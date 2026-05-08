@@ -81,6 +81,9 @@ export default async function DashboardPage() {
 
   const role = (profile?.role as string) ?? "creator";
 
+  // Creators get the analytics dashboard — the admin sidebar is for admins only
+  if (role === "creator") redirect("/dashboard/analytics");
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar role={role} />
