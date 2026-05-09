@@ -265,7 +265,7 @@ function IdentityColumn({ creator }: { creator: CreatorWithStats }) {
     { k: "Audience Type",   tags: ["Core Gamers", "18–34"] },
     { k: "Stream Persona",  tags: ["Intense", "Humorous"] },
     { k: "Peak Game",       tags: ["Resident Evil 4"] },
-    { k: "Viewer Loyalty",  tags: ["Very High", "Top 12%"] },
+    { k: "Activity Score",  tags: ["Active"] },
     { k: "Active Time",     tags: ["7PM – 1AM (KWT)"] },
   ];
 
@@ -434,8 +434,8 @@ function IdentityColumn({ creator }: { creator: CreatorWithStats }) {
 // HERO — CENTER COLUMN (SCORE RING)
 // ─────────────────────────────────────────────────────────────────
 
-function CenterColumn({ score, momentumScore }: { score: number; momentumScore: number | null }) {
-  const size = 320;
+function CenterColumn({ score, momentumScore, rankMovement, kuwaitRank }: { score: number; momentumScore: number | null; rankMovement: number | null; kuwaitRank: number | null }) {
+  const size = 370;
   const radius = size / 2 - 18;
   const circ = 2 * Math.PI * radius;
   const offset = circ * (1 - Math.min(score, 100) / 100);
@@ -454,8 +454,8 @@ function CenterColumn({ score, momentumScore }: { score: number; momentumScore: 
 
   const pillars = [
     { k: "Growth",      v: 88, data: [3,5,4,6,5,7,8,7,9,10]  },
-    { k: "Loyalty",     v: 91, data: [6,5,7,6,8,7,9,8,10,9]  },
-    { k: "Engagement",  v: 87, data: [5,6,5,7,6,8,7,9,8,10]  },
+    { k: "Rank",        v: 90, data: [6,5,7,6,8,7,9,8,10,9]  },
+    { k: "Presence",    v: 87, data: [5,6,5,7,6,8,7,9,8,10]  },
     { k: "Momentum",    v: 88, data: [4,5,4,6,5,7,8,9,10,11] },
     { k: "Consistency", v: 90, data: [7,6,8,7,9,8,9,8,9,10]  },
   ];
@@ -463,7 +463,7 @@ function CenterColumn({ score, momentumScore }: { score: number; momentumScore: 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       {/* Score ring card */}
-      <div style={surf({ padding: 26, display: "flex", flexDirection: "column" })}>
+      <div style={surf({ padding: 34, display: "flex", flexDirection: "column" })}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <span style={LXS}>SAHA Score Index</span>
           <span style={{ fontSize: 10.5, letterSpacing: "0.18em", color: M2, fontFamily: MONO }}>OFFICIAL · CERTIFIED</span>
@@ -508,7 +508,21 @@ function CenterColumn({ score, momentumScore }: { score: number; momentumScore: 
               {score}
             </span>
             <span style={{ fontSize: 12.5, letterSpacing: "0.32em", color: A, marginTop: 8, fontFamily: MONO }}>{scoreLabel}</span>
-            <span style={{ fontSize: 12, color: UP, marginTop: 8, fontFamily: MONO }}>↑ +7 this month</span>
+            <div style={{ marginTop: 14, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+              <span style={{ fontSize: 9.5, letterSpacing: "0.32em", color: M2, fontFamily: MONO }}>THIS MONTH</span>
+              {rankMovement !== null && rankMovement !== 0 ? (
+                <span style={{ fontFamily: SERIF, fontSize: 22, color: rankMovement > 0 ? UP : DN, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>
+                  {rankMovement > 0 ? "↑" : "↓"} {Math.abs(rankMovement)} Rank Movement
+                </span>
+              ) : (
+                <span style={{ fontFamily: SERIF, fontSize: 18, color: M, lineHeight: 1 }}>Stable</span>
+              )}
+              {kuwaitRank !== null && (
+                <span style={{ fontSize: 11, color: A, fontFamily: MONO, letterSpacing: "0.16em", marginTop: 2 }}>
+                  TOP 1% KUWAIT · #{kuwaitRank}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -661,6 +675,7 @@ function KPIStrip({
   growth30dDelta,
   momentumScore,
   rankMovement,
+  consistencyScore,
 }: {
   totalFollowers: number | null;
   growth30dPct: number | null;
@@ -669,6 +684,7 @@ function KPIStrip({
   growth30dDelta: number | null;
   momentumScore: number | null;
   rankMovement: number | null;
+  consistencyScore: number | null;
 }) {
   // Format a number or show "—" if unavailable
   function fmtOrDash(n: number | null): string {
@@ -724,12 +740,12 @@ function KPIStrip({
       noData: rankMovement === null,
     },
     {
-      label: "Viewer Loyalty",
-      value: "92%",
-      delta: 5,
-      custom: null,
-      spark: [70,72,74,75,77,79,80,82,84,85,87,88,90,91,92],
-      noData: false,
+      label: "Activity Score",
+      value: consistencyScore !== null ? `${consistencyScore}%` : "—",
+      delta: null,
+      custom: consistencyScore === null ? "Not enough history" : "Active streamer",
+      spark: [65,68,70,72,74,76,78,80,82,83,84,85,86,86,87],
+      noData: consistencyScore === null,
     },
     {
       label: "Stream Consistency",
@@ -754,10 +770,10 @@ function KPIStrip({
       {cards.map(k => (
         <div key={k.label} style={surf({ padding: "14px 14px", height: 120, display: "flex", flexDirection: "column", justifyContent: "space-between", minWidth: 0, overflow: "hidden" })}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minWidth: 0 }}>
-            <span style={{ ...LXS, fontSize: 10, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{k.label}</span>
+            <span style={{ ...LXS, fontSize: 9.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{k.label}</span>
             {k.noData && <span style={{ fontSize: 9, color: M2, fontFamily: MONO, flexShrink: 0 }}>—</span>}
           </div>
-          <div style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 500, letterSpacing: "-0.01em", lineHeight: 1, whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums", color: k.noData ? M2 : TX }}>
+          <div style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: "-0.01em", lineHeight: 1, whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums", color: k.noData ? M2 : TX }}>
             {k.value}
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, minWidth: 0 }}>
@@ -828,7 +844,7 @@ function CreatorPerformance() {
     <div style={surf({ padding: 22, marginTop: 18 })}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
         <span style={LXS}>Creator Performance</span>
-        <span style={{ fontSize: 11.5, color: M }}>Last 30 days · sorted by dominance</span>
+        <span style={{ fontSize: 11.5, color: M }}>Last 30 days · top categories</span>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
         {GAMES.map(g => (
@@ -847,20 +863,6 @@ function CreatorPerformance() {
                 <span style={{ display: "inline-flex", alignItems: "center", height: 20, padding: "0 8px", background: "rgba(11,10,18,0.7)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 3, fontSize: 10, color: M, fontFamily: MONO }}>
                   #{Math.round(100 - g.dominance / 2)}
                 </span>
-              </div>
-            </div>
-            <div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 11.5, color: M }}>Avg Viewers</span>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ fontSize: 14, color: TX, fontVariantNumeric: "tabular-nums", fontWeight: 500 }}>{g.avgViewers}</span>
-                  <Delta value={g.growth} />
-                </div>
-              </div>
-              <div style={{ height: 1, background: BS }} />
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 11.5, color: M }}>Dominance</span>
-                <span style={{ fontSize: 14, color: A, fontVariantNumeric: "tabular-nums", fontWeight: 600 }}>{g.dominance}%</span>
               </div>
             </div>
           </div>
@@ -989,7 +991,6 @@ function PlatformTable({ platforms }: { platforms: { id: string; followers: numb
   const COLORS: Record<string, string> = {
     twitch: "#9147ff", instagram: "#e25555", tiktok: "#5fb8d6", youtube: "#cf6dab", kick: "#53FC18",
   };
-  const RETENTION: Record<string, number> = { twitch: 72, instagram: 68, tiktok: 71, youtube: 74, kick: 66 };
   return (
     <div style={surf({ padding: 22, height: "100%" })}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
@@ -998,15 +999,14 @@ function PlatformTable({ platforms }: { platforms: { id: string; followers: numb
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
-            {["", "Followers", "Growth", "Retention", "Trend"].map((h, i) => (
-              <th key={h} style={{ textAlign: i === 4 ? "right" : "left", padding: "0 12px 10px", fontSize: 10.5, color: M, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", borderBottom: `1px solid ${BRD}` }}>{h}</th>
+            {["", "Followers", "Growth", "Trend"].map((h, i) => (
+              <th key={h} style={{ textAlign: i === 3 ? "right" : "left", padding: "0 12px 10px", fontSize: 10.5, color: M, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", borderBottom: `1px solid ${BRD}` }}>{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {platforms.map(p => {
             const color = COLORS[p.id] ?? M;
-            const ret = RETENTION[p.id] ?? 70;
             return (
               <tr key={p.id} style={{ borderBottom: `1px solid ${BS}` }}>
                 <td style={{ padding: "10px 12px" }}>
@@ -1019,7 +1019,6 @@ function PlatformTable({ platforms }: { platforms: { id: string; followers: numb
                 </td>
                 <td style={{ padding: "10px 12px", fontSize: 13, fontVariantNumeric: "tabular-nums", color: TX }}>{fmtN(p.followers)}</td>
                 <td style={{ padding: "10px 12px" }}>{p.growth !== null ? <Delta value={p.growth} /> : <span style={{ color: M }}>—</span>}</td>
-                <td style={{ padding: "10px 12px", fontSize: 13, color: M, fontVariantNumeric: "tabular-nums" }}>{ret}%</td>
                 <td style={{ padding: "10px 12px", textAlign: "right" }}>
                   <SparkSVG data={p.sparkData} width={84} height={20} stroke={color} />
                 </td>
@@ -1128,10 +1127,10 @@ function RivalrySection() {
         </div>
       </div>
       <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 14 }}>
-        <VsBar left={32} right={28} label="Audience Overlap"    />
-        <VsBar left={14} right={9}  label="Growth Race (30D)"   accent />
-        <VsBar left={87} right={83} label="Consistency"         />
-        <VsBar left={88} right={81} label="Momentum"            />
+        <VsBar left={14} right={9}  label="Growth Velocity"  accent />
+        <VsBar left={87} right={83} label="Consistency"             />
+        <VsBar left={88} right={81} label="Momentum"                />
+        <VsBar left={14} right={11} label="Rank Gap"                />
       </div>
     </div>
   );
@@ -1224,14 +1223,14 @@ function BadgeIcon({ kind }: { kind: BadgeKind }) {
   return icons[kind] ?? null;
 }
 
-const BADGES: { name: string; icon: BadgeKind }[] = [
-  { name: "Founding Creator", icon: "founding"   },
-  { name: "SAHA Verified",    icon: "verified"   },
-  { name: "Top 10 Kuwait",    icon: "top10"      },
-  { name: "Rising Creator",   icon: "rising"     },
-  { name: "SAHA Elite",       icon: "elite"      },
-  { name: "Most Consistent",  icon: "consistent" },
-  { name: "Breakout Creator", icon: "breakout"   },
+const BADGES: { name: string; icon: BadgeKind; earned: boolean }[] = [
+  { name: "Founding Creator", icon: "founding",   earned: true  },
+  { name: "SAHA Verified",    icon: "verified",   earned: true  },
+  { name: "Top 10 Kuwait",    icon: "top10",      earned: true  },
+  { name: "Rising Creator",   icon: "rising",     earned: true  },
+  { name: "SAHA Elite",       icon: "elite",      earned: false },
+  { name: "Most Consistent",  icon: "consistent", earned: false },
+  { name: "Breakout Creator", icon: "breakout",   earned: false },
 ];
 
 function BadgeShowcase() {
@@ -1239,85 +1238,122 @@ function BadgeShowcase() {
     <div style={surf({ padding: 24, marginTop: 18 })}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
         <span style={LXS}>Certifications · Badges</span>
-        <span style={{ fontSize: 11.5, color: M }}>7 of 24 earned</span>
+        <span style={{ fontSize: 11.5, color: M }}>4 of 24 earned</span>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 12 }}>
-        {BADGES.map(b => (
-          <div key={b.name} style={{
-            padding: "20px 14px 16px", border: `1px solid ${BRD}`, borderRadius: 12,
-            background: `linear-gradient(180deg, ${A}06, transparent 50%), ${SF}`,
-            display: "flex", flexDirection: "column", gap: 12, alignItems: "center",
-            textAlign: "center", height: 132, justifyContent: "space-between",
-          }}>
-            <div style={{
-              width: 60, height: 72,
-              background: `radial-gradient(60% 50% at 50% 35%, ${A}1a, transparent 70%), linear-gradient(180deg, #1a1727, #100e1a)`,
-              border: `1px solid ${BRD}`, borderRadius: "8px 8px 30px 30px / 8px 8px 50px 50px",
-              display: "flex", alignItems: "center", justifyContent: "center",
+        {BADGES.map(b => {
+          const isFounding = b.icon === "founding";
+          return (
+            <div key={b.name} style={{
+              padding: "20px 14px 16px",
+              border: isFounding ? `1.5px solid ${A}` : `1px solid ${BRD}`,
+              borderRadius: 12,
+              background: `linear-gradient(180deg, ${A}06, transparent 50%), ${SF}`,
+              boxShadow: isFounding ? `0 0 18px ${A}30, inset 0 0 18px ${A}10` : undefined,
+              display: "flex", flexDirection: "column", gap: 12, alignItems: "center",
+              textAlign: "center", height: 132, justifyContent: "space-between",
+              opacity: b.earned ? 1 : 0.35,
+              filter: b.earned ? undefined : "grayscale(1)",
+              position: "relative",
             }}>
-              <BadgeIcon kind={b.icon} />
+              <div style={{
+                width: 60, height: 72,
+                background: `radial-gradient(60% 50% at 50% 35%, ${A}1a, transparent 70%), linear-gradient(180deg, #1a1727, #100e1a)`,
+                border: `1px solid ${BRD}`, borderRadius: "8px 8px 30px 30px / 8px 8px 50px 50px",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <BadgeIcon kind={b.icon} />
+              </div>
+              <span style={{ fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: M, fontWeight: 500, lineHeight: 1.3 }}>
+                {b.name}
+              </span>
+              {!b.earned && (
+                <span style={{ position: "absolute", top: 8, right: 8, fontSize: 10, color: M2, fontFamily: MONO }}>🔒</span>
+              )}
             </div>
-            <span style={{ fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: M, fontWeight: 500, lineHeight: 1.3 }}>
-              {b.name}
-            </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────
-// PUBLIC INSIGHTS
+// SAHA REPORT SUMMARY — editorial analyst notes (real signals only)
 // ─────────────────────────────────────────────────────────────────
 
-function genTrend(seed: number, len: number): number[] {
-  let v = 5;
-  return Array.from({ length: len }, (_, i) => {
-    v += Math.sin(seed + i) * 1.2 + (i % 3 === 0 ? 0.3 : -0.1);
-    return +v.toFixed(2);
+function SAHAReportSummary({
+  momentumScore,
+  rankMovement,
+  platformCount,
+  consistencyScore,
+  growthAvailable,
+}: {
+  momentumScore: number | null;
+  rankMovement: number | null;
+  platformCount: number;
+  consistencyScore: number | null;
+  growthAvailable: boolean;
+}) {
+  const notes: { headline: string; body: string; tone: "up" | "neutral" | "muted" }[] = [];
+
+  if (momentumScore !== null && momentumScore >= 70) {
+    notes.push({ headline: "Strong momentum in Gaming", body: `Momentum score at ${momentumScore} — outperforming most peers in cohort.`, tone: "up" });
+  } else if (momentumScore !== null) {
+    notes.push({ headline: "Momentum building", body: `Current momentum score: ${momentumScore}. Tracking steady week-over-week.`, tone: "neutral" });
+  } else {
+    notes.push({ headline: "Momentum data pending", body: "Score will appear after 7 days of snapshot history.", tone: "muted" });
+  }
+
+  if (rankMovement !== null && rankMovement > 0) {
+    notes.push({ headline: `Climbed ${rankMovement} ${rankMovement === 1 ? "place" : "places"} this week`, body: "Ranking trajectory positive across the Kuwait cohort.", tone: "up" });
+  } else if (rankMovement !== null && rankMovement < 0) {
+    notes.push({ headline: `Slipped ${Math.abs(rankMovement)} ${Math.abs(rankMovement) === 1 ? "place" : "places"}`, body: "Cohort competition intensified this week.", tone: "neutral" });
+  } else {
+    notes.push({ headline: "Ranking stable this week", body: "Position held against cohort movement.", tone: "neutral" });
+  }
+
+  notes.push({
+    headline: `Cross-platform presence: ${platformCount} ${platformCount === 1 ? "platform" : "platforms"} active`,
+    body: platformCount >= 3 ? "Diversified distribution improves discovery surface area." : "Expanding platform footprint may improve discovery.",
+    tone: platformCount >= 3 ? "up" : "neutral",
   });
-}
 
-const INSIGHTS_DATA = [
-  { metric: "Viewer Loyalty",       your: "92%",     percentile: "Top 12%", delta: 5,  down: false },
-  { metric: "Avg Watch Duration",   your: "1h 48m",  percentile: "Top 18%", delta: 6,  down: false },
-  { metric: "Stream Consistency",   your: "87%",     percentile: "Top 15%", delta: 6,  down: false },
-  { metric: "Audience Overlap",     your: "32%",     percentile: "Top 22%", delta: -2, down: true  },
-  { metric: "Growth Velocity",      your: "14.3%",   percentile: "Top 11%", delta: 3,  down: false },
-  { metric: "Retention Score",      your: "72%",     percentile: "Top 16%", delta: 4,  down: false },
-  { metric: "Discovery Rate",       your: "26%",     percentile: "Top 20%", delta: 5,  down: false },
-];
+  if (consistencyScore !== null && consistencyScore >= 70) {
+    notes.push({ headline: "Consistent streaming schedule detected", body: `Consistency score: ${consistencyScore}. Audience retention reinforced by predictable cadence.`, tone: "up" });
+  } else if (consistencyScore !== null) {
+    notes.push({ headline: "Streaming schedule irregular", body: `Consistency score: ${consistencyScore}. More regular streams may improve retention.`, tone: "neutral" });
+  } else {
+    notes.push({ headline: "Streaming schedule not synced", body: "Connect a streaming platform to track schedule consistency.", tone: "muted" });
+  }
 
-function PublicInsights() {
+  if (!growthAvailable) {
+    notes.push({ headline: "Growth data requires more history", body: "30-day growth signal becomes available after sufficient snapshot history.", tone: "muted" });
+  }
+
   return (
     <div style={surf({ padding: 22, height: "100%" })}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-        <span style={LXS}>Public Creator Insights</span>
-        <span style={{ fontSize: 11.5, color: M }}>Audited · 30 day window</span>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <span style={LXS}>SAHA Report · Analyst Notes</span>
+        <span style={{ fontSize: 11.5, color: M }}>Auto-generated · 30 day window</span>
       </div>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            {["Metric", "Your Stats", "Percentile", "vs 30 Days", "Trend"].map((h, i) => (
-              <th key={h} style={{ textAlign: i === 4 ? "right" : "left", padding: "0 12px 10px", fontSize: 10.5, color: M, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", borderBottom: `1px solid ${BRD}` }}>{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {INSIGHTS_DATA.map((row, idx) => (
-            <tr key={row.metric} style={{ borderBottom: `1px solid ${BS}` }}>
-              <td style={{ padding: "10px 12px", fontSize: 13, color: TX }}>{row.metric}</td>
-              <td style={{ padding: "10px 12px", fontSize: 13, fontVariantNumeric: "tabular-nums", color: TX }}>{row.your}</td>
-              <td style={{ padding: "10px 12px", fontSize: 12.5, color: M, fontVariantNumeric: "tabular-nums" }}>{row.percentile}</td>
-              <td style={{ padding: "10px 12px" }}><Delta value={row.delta} /></td>
-              <td style={{ padding: "10px 12px", textAlign: "right" }}>
-                <SparkSVG data={genTrend(idx * 40, 7)} width={120} height={22} stroke={row.down ? DN : A} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {notes.map((n, i) => (
+          <div key={i} style={{
+            padding: "14px 16px",
+            background: n.tone === "muted" ? "transparent" : SF,
+            border: `1px solid ${n.tone === "up" ? `${A}40` : BRD}`,
+            borderRadius: 10,
+            display: "flex", flexDirection: "column", gap: 4,
+            opacity: n.tone === "muted" ? 0.65 : 1,
+          }}>
+            <span style={{ fontFamily: SERIF, fontSize: 16, color: TX, fontWeight: 500, letterSpacing: "-0.005em" }}>
+              {n.headline}
+            </span>
+            <span style={{ fontSize: 12.5, color: M, lineHeight: 1.55 }}>{n.body}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -1334,6 +1370,11 @@ function LeaderboardSection({ creators }: { creators: typeof mockAnalyticsData.t
     4: [5,5,6,6,5,6,6,7,7,8,8,9],
     5: [3,4,5,5,6,7,7,8,9,10,11,12],
   };
+  const maxScoreDelta = Math.max(...creators.filter(c => !c.you).map(c => c.scoreDelta ?? 0));
+  const youRow = creators.find(c => c.you);
+  const aboveYou = youRow ? creators.find(c => c.rank === (youRow.rank - 1)) : null;
+  const gapPoints = (youRow && aboveYou) ? aboveYou.score - youRow.score : null;
+
   return (
     <div style={surf({ padding: 22, height: "100%" })}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
@@ -1359,9 +1400,9 @@ function LeaderboardSection({ creators }: { creators: typeof mockAnalyticsData.t
         <tbody>
           {creators.map(l => (
             <tr key={l.rank} style={{ background: l.you ? `${A}0d` : "transparent", borderBottom: `1px solid ${BS}` }}>
-              <td style={{ padding: "10px 10px", fontFamily: SERIF, fontSize: 16, color: l.you ? A : M, fontVariantNumeric: "tabular-nums" }}>{l.rank}</td>
+              <td style={{ padding: "10px 10px", fontFamily: SERIF, fontSize: 18, color: l.you ? A : M, fontVariantNumeric: "tabular-nums", fontWeight: l.you ? 600 : 400 }}>{l.rank}</td>
               <td style={{ padding: "10px 10px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                   <AvatarEl size={26} label={l.name[0]} tone={l.you ? "warm" : "default"} ring={l.you} />
                   <span style={{ fontSize: 13.5, fontWeight: l.you ? 500 : 400, color: TX, fontFamily: l.arabic ? ARABIC : undefined }}>
                     {l.name}
@@ -1371,21 +1412,39 @@ function LeaderboardSection({ creators }: { creators: typeof mockAnalyticsData.t
                       YOU
                     </span>
                   )}
+                  {!l.you && l.scoreDelta >= 6 && (
+                    <span style={{ display: "inline-flex", alignItems: "center", height: 18, padding: "0 6px", border: `1px solid ${UP}`, color: UP, borderRadius: 3, fontSize: 9, letterSpacing: "0.1em", fontFamily: MONO }}>HOT</span>
+                  )}
+                  {!l.you && l.rankDelta > 0 && (
+                    <span style={{ display: "inline-flex", alignItems: "center", height: 18, padding: "0 6px", border: `1px solid ${A}`, color: A, borderRadius: 3, fontSize: 9, letterSpacing: "0.1em", fontFamily: MONO }}>RISING</span>
+                  )}
+                  {!l.you && l.scoreDelta === maxScoreDelta && maxScoreDelta > 0 && (
+                    <span style={{ fontSize: 10, color: A, fontFamily: MONO, letterSpacing: "0.06em" }}>Fastest · KW</span>
+                  )}
                 </div>
               </td>
-              <td style={{ padding: "10px 10px", fontFamily: SERIF, fontSize: 16, fontVariantNumeric: "tabular-nums", color: TX }}>{l.score}</td>
-              <td style={{ padding: "10px 10px" }}><Delta value={l.scoreDelta} suffix="" /></td>
+              <td style={{ padding: "10px 10px", fontFamily: SERIF, fontSize: 18, fontVariantNumeric: "tabular-nums", color: l.you ? A : TX, fontWeight: l.you ? 600 : 400 }}>{l.score}</td>
+              <td style={{ padding: "10px 10px" }}><span style={{ fontSize: 14 }}><Delta value={l.scoreDelta} suffix="" /></span></td>
               <td style={{ padding: "10px 10px" }}>
                 {l.rankDelta === 0
                   ? <span style={{ color: M2 }}>—</span>
-                  : <Delta value={l.rankDelta} suffix="" />}
+                  : <span style={{ fontSize: 14 }}><Delta value={l.rankDelta} suffix="" /></span>}
               </td>
-              <td style={{ padding: "10px 10px" }}><SparkSVG data={momentum[l.rank] ?? []} width={90} height={20} stroke={A} /></td>
+              <td style={{ padding: "10px 10px" }}><SparkSVG data={momentum[l.rank] ?? []} width={90} height={20} stroke={l.you ? A : M} /></td>
               <td style={{ padding: "10px 10px", fontSize: 13, fontVariantNumeric: "tabular-nums", color: TX }}>{l.followers}</td>
-              <td style={{ padding: "10px 10px", textAlign: "right" }}><Delta value={l.growth} /></td>
+              <td style={{ padding: "10px 10px", textAlign: "right" }}><span style={{ fontSize: 14 }}><Delta value={l.growth} /></span></td>
             </tr>
           ))}
         </tbody>
+        {gapPoints !== null && aboveYou && gapPoints > 0 && (
+          <tfoot>
+            <tr>
+              <td colSpan={8} style={{ padding: "12px 10px 0", fontSize: 11.5, color: A, fontFamily: MONO, letterSpacing: "0.08em" }}>
+                Only {gapPoints} {gapPoints === 1 ? "point" : "points"} behind #{aboveYou.rank} · {aboveYou.name}
+              </td>
+            </tr>
+          </tfoot>
+        )}
       </table>
     </div>
   );
@@ -1411,10 +1470,10 @@ function LockedAnalyticsBlock() {
             <span style={{ fontSize: 20 }}>🔒</span>
             <div style={{ fontFamily: SERIF, fontSize: 24, fontWeight: 500, color: TX }}>SAHA Analytics Pro</div>
             <div style={{ fontSize: 12.5, color: M, lineHeight: 1.6 }}>
-              Unlock advanced momentum tracking, historical ranking intelligence, and creator comparison tools.
+              Unlock historical ranking intelligence, advanced growth tracking, and creator comparison tools.
             </div>
             <button style={{ marginTop: 4, height: 34, padding: "0 14px", background: "transparent", border: `1px solid ${A}`, borderRadius: 8, color: A, fontSize: 12.5, cursor: "pointer" }}>
-              Unlock Analytics
+              Subscribe to Pro
             </button>
           </div>
         </div>
@@ -1580,6 +1639,9 @@ export default async function AnalyticsPage() {
     : Math.round(Number(creator?.score?.final_score ?? 0));
 
   const momentumScore = dailyScore ? Math.round(Number(dailyScore.momentum_score)) : null;
+  const consistencyScore = dailyScore ? Math.round(Number(dailyScore.consistency_score)) : null;
+  const platformCount = platforms.filter(p => (p.followers ?? 0) > 0).length;
+  const growthAvailable = growth30dPct !== null;
 
   // ── Chart data from snapshots ──────────────────────────────────
   const snapshotList = (snapshotRaw ?? []) as SnapshotRow[];
@@ -1637,7 +1699,12 @@ export default async function AnalyticsPage() {
         {/* Hero — 3 columns */}
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0,40fr) minmax(0,30fr) minmax(0,30fr)", gap: 32, marginTop: 36 }}>
           <IdentityColumn creator={creator} />
-          <CenterColumn score={sahaScore > 0 ? sahaScore : 89} momentumScore={momentumScore} />
+          <CenterColumn
+              score={sahaScore > 0 ? sahaScore : 89}
+              momentumScore={momentumScore}
+              rankMovement={rankMovement}
+              kuwaitRank={kuwaitRank}
+            />
           <RankingsColumn
             kuwaitRank={kuwaitRank ?? 8}
             gccRank={arabRank ?? 21}
@@ -1654,6 +1721,7 @@ export default async function AnalyticsPage() {
           growth30dDelta={growth30dDelta}
           momentumScore={momentumScore}
           rankMovement={rankMovement}
+          consistencyScore={consistencyScore}
         />
         <CreatorPerformance />
         <LockedTeaser />
@@ -1666,18 +1734,25 @@ export default async function AnalyticsPage() {
 
         <RankingMovementSection />
 
-        {/* Rivalry + Also Watches */}
+        {/* Prestige first — badges before upsell */}
+        <BadgeShowcase />
+
+        {/* SAHA Report + Leaderboard */}
+        <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: 18 }}>
+          <SAHAReportSummary
+            momentumScore={momentumScore}
+            rankMovement={rankMovement}
+            platformCount={platformCount}
+            consistencyScore={consistencyScore}
+            growthAvailable={growthAvailable}
+          />
+          <LeaderboardSection creators={mockAnalyticsData.topCreators} />
+        </div>
+
+        {/* Rivalry + Also Watches — locked sections after prestige content */}
         <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "1.55fr 1fr", gap: 18 }}>
           <RivalrySection />
           <AlsoWatches />
-        </div>
-
-        <BadgeShowcase />
-
-        {/* Public Insights + Leaderboard */}
-        <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: 18 }}>
-          <PublicInsights />
-          <LeaderboardSection creators={mockAnalyticsData.topCreators} />
         </div>
 
         <LockedAnalyticsBlock />
