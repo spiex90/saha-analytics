@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCountry } from "@/lib/constants/countries";
 import { HeaderAnalytics } from "@/components/analytics/header-analytics";
+import { CalibrationRing } from "@/components/analytics/calibration-ring";
 import type { CreatorWithStats } from "@/lib/types";
 
 // ─────────────────────────────────────────────────────────────────
@@ -162,49 +163,109 @@ function AvatarEl({ size = 42, label = "?", tone = "default", ring = false }: {
   );
 }
 
-function KuwaitMapSVG({ accent = false }: { accent?: boolean }) {
+// ── Accurate Kuwait outline (Gulf coast + Kuwait Bay on east side) ──
+const KUWAIT_PATH =
+  "M 15 22 L 18 14 L 42 10 L 55 8 L 62 14 L 66 28 L 68 44 " +
+  "L 62 56 L 52 66 L 54 72 L 48 76 L 25 78 L 12 66 L 10 44 L 12 30 Z";
+
+// ── Arab world country outlines (simplified but recognizable) ──
+const AW_FILL   = "rgba(140,133,160,0.18)";
+const AW_STROKE = "rgba(167,160,184,0.55)";
+const AW_SW     = "0.7";
+
+function ArabWorldDetailedSVG({ width = 155, height = 105 }: { width?: number; height?: number }) {
   return (
-    <svg width={90} height={70} viewBox="0 0 100 80">
-      <path d="M30 8 L62 6 L78 18 L86 28 L82 42 L74 50 L78 62 L70 70 L52 72 L40 66 L24 60 L18 50 L14 36 L20 22 Z"
-        fill={accent ? "rgba(244,165,44,0.10)" : "rgba(167,160,184,0.06)"}
-        stroke={accent ? "rgba(244,165,44,0.55)" : "rgba(167,160,184,0.35)"}
-        strokeWidth="1" />
-      <circle cx="48" cy="40" r="2" fill={accent ? A : M} />
+    <svg width={width} height={height} viewBox="0 0 200 130" style={{ display: "block" }}>
+      {/* Morocco */}
+      <path d="M 5 44 L 18 34 L 20 22 L 16 12 L 10 14 L 6 28 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Algeria */}
+      <path d="M 18 34 L 58 30 L 62 15 L 20 12 L 16 12 L 20 22 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Tunisia */}
+      <path d="M 58 30 L 65 26 L 68 34 L 62 36 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Libya */}
+      <path d="M 62 15 L 90 11 L 92 38 L 68 40 L 62 36 L 68 34 L 65 26 L 58 30 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Egypt */}
+      <path d="M 90 11 L 110 8 L 114 34 L 106 42 L 95 44 L 92 38 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Mauritania */}
+      <path d="M 5 44 L 6 28 L 10 14 L 16 12 L 18 34 L 22 58 L 12 62 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Mali / Niger */}
+      <path d="M 18 34 L 22 58 L 38 64 L 65 62 L 68 40 L 62 36 L 58 30 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Chad */}
+      <path d="M 68 40 L 65 62 L 80 68 L 90 70 L 92 48 L 92 38 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Sudan */}
+      <path d="M 92 38 L 92 48 L 90 70 L 106 74 L 114 62 L 116 44 L 106 42 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Somalia */}
+      <path d="M 116 44 L 114 34 L 130 28 L 138 42 L 132 58 L 120 70 L 114 62 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Djibouti */}
+      <path d="M 116 56 L 120 53 L 122 58 L 118 62 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Syria */}
+      <path d="M 110 8 L 128 5 L 136 10 L 138 18 L 128 22 L 114 20 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Lebanon (tiny) */}
+      <path d="M 112 20 L 116 19 L 116 25 L 112 26 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Iraq */}
+      <path d="M 128 5 L 140 6 L 144 14 L 142 30 L 132 34 L 120 36 L 114 34 L 114 20 L 128 22 L 138 18 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Jordan */}
+      <path d="M 106 42 L 114 34 L 120 36 L 118 46 L 112 50 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Kuwait (small) */}
+      <path d="M 142 30 L 146 27 L 148 32 L 144 36 L 142 30 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Saudi Arabia */}
+      <path d="M 120 36 L 132 34 L 142 30 L 144 36 L 150 36 L 152 50 L 148 64 L 136 68 L 120 72 L 112 64 L 114 62 L 116 44 L 118 46 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* UAE / Bahrain / Qatar */}
+      <path d="M 150 36 L 156 32 L 160 40 L 158 52 L 152 54 L 152 50 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Oman */}
+      <path d="M 156 32 L 164 28 L 170 38 L 168 56 L 160 64 L 152 64 L 148 64 L 152 54 L 158 52 L 160 40 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
+      {/* Yemen */}
+      <path d="M 120 72 L 136 68 L 148 64 L 152 64 L 155 72 L 144 78 L 128 80 L 118 76 L 114 70 Z" fill={AW_FILL} stroke={AW_STROKE} strokeWidth={AW_SW} />
     </svg>
   );
 }
 
-function ArabWorldSVG() {
-  return (
-    <svg width={110} height={70} viewBox="0 0 140 80">
-      <path d="M10 30 L24 16 L46 10 L70 14 L94 8 L118 14 L132 28 L126 50 L108 60 L86 64 L74 72 L60 68 L48 70 L34 64 L22 56 L12 46 Z"
-        fill="rgba(167,160,184,0.05)" stroke="rgba(167,160,184,0.32)" strokeWidth="1" />
-      <circle cx="72" cy="38" r="2.2" fill={A} />
-    </svg>
-  );
-}
-
-function DottedMapSVG({ width = 130, height = 80 }: { width?: number; height?: number }) {
-  const dots: { x: number; y: number; intense: boolean }[] = [];
-  for (let row = 0; row < 18; row++) {
-    for (let col = 0; col < 30; col++) {
-      const px = col / 30, py = row / 18;
-      const inLand =
-        py > 0.15 && py < 0.85 && px > 0.05 && px < 0.95 &&
-        Math.sin(px * 7) + Math.cos(py * 5) > -0.7 &&
-        !(px < 0.2 && py > 0.5) && !(px > 0.85 && py < 0.3);
-      if (!inLand) continue;
-      const intense = px > 0.4 && px < 0.7 && py > 0.35 && py < 0.6;
-      dots.push({ x: col * (width / 30), y: row * (height / 18), intense });
+// ── Gold particle Arab world (Outperforming card) ──
+function GoldParticleArabWorld({ width = 160, height = 110 }: { width?: number; height?: number }) {
+  // Seed-based pseudo-random for deterministic output
+  const dots: { x: number; y: number; r: number; o: number }[] = [];
+  // Define the Arab world as a list of rectangular zones with density
+  const zones = [
+    // [x, y, w, h, density] — in a 200x130 space
+    [5, 12, 22, 52, 0.45],    // Morocco + Mauritania
+    [18, 12, 48, 55, 0.5],    // Algeria
+    [62, 11, 30, 55, 0.48],   // Libya
+    [90, 8, 26, 54, 0.5],     // Egypt + Sudan top
+    [90, 48, 26, 26, 0.4],    // Sudan mid
+    [38, 58, 30, 14, 0.35],   // Mali/Niger bottom
+    [65, 58, 30, 14, 0.35],   // Chad bottom
+    [106, 54, 14, 22, 0.4],   // Sudan/Somalia bottom
+    [110, 5, 34, 36, 0.5],    // Syria/Iraq
+    [106, 36, 48, 42, 0.55],  // Saudi + Jordan
+    [148, 28, 22, 38, 0.45],  // Oman/UAE
+    [118, 66, 38, 14, 0.4],   // Yemen
+    [114, 26, 8, 36, 0.3],    // Jordan/Lebanon
+  ];
+  let seed = 42;
+  function rand() { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 4294967296; }
+  for (const [zx, zy, zw, zh, density] of zones) {
+    const count = Math.round((zw * zh) * (density as number) * 0.08);
+    for (let i = 0; i < count; i++) {
+      const x = (zx as number) + rand() * (zw as number);
+      const y = (zy as number) + rand() * (zh as number);
+      const r = 0.6 + rand() * 1.0;
+      const o = 0.35 + rand() * 0.65;
+      dots.push({ x, y, r, o });
     }
   }
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-      {dots.map((d, i) => (
-        <circle key={i} cx={d.x} cy={d.y} r={d.intense ? 0.9 : 0.55}
-          fill={d.intense ? A : "rgba(167,160,184,0.45)"}
-          opacity={d.intense ? 0.95 : 0.5} />
-      ))}
+    <svg width={width} height={height} viewBox="0 0 200 130" style={{ display: "block" }}>
+      <defs>
+        <filter id="gp-glow">
+          <feGaussianBlur stdDeviation="1.5" result="b" />
+          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+      </defs>
+      <g filter="url(#gp-glow)">
+        {dots.map((d, i) => (
+          <circle key={i} cx={d.x} cy={d.y} r={d.r} fill={A} opacity={d.o} />
+        ))}
+      </g>
     </svg>
   );
 }
@@ -601,39 +662,270 @@ function CenterColumn({ score, momentumScore, rankMovement, kuwaitRank }: { scor
 // HERO — RANKINGS COLUMN
 // ─────────────────────────────────────────────────────────────────
 
-function RankCard({ rank, delta, deltaColor, type, sub, big = true }: {
-  rank: string; delta: string; deltaColor?: string; type: "kuwait" | "arab" | "line"; sub: string; big?: boolean;
-}) {
+// ── Kuwait hero card — matches the golden silhouette reference ──
+function KuwaitHeroCard({ rank, delta, deltaColor }: { rank: string; delta: string; deltaColor?: string }) {
+  // Bar chart data — increasing trend, last bar highlighted
+  const bars = [3, 4, 3, 5, 4, 6, 5, 7, 6, 8, 7, 9, 11, 14];
+  const maxBar = Math.max(...bars);
+
+  // Scatter particles along the right edge of the silhouette
+  const particles = [
+    { cx: 182, cy: 28, r: 1.4, o: 0.7 }, { cx: 190, cy: 38, r: 1.0, o: 0.5 },
+    { cx: 195, cy: 52, r: 1.6, o: 0.6 }, { cx: 188, cy: 62, r: 0.9, o: 0.4 },
+    { cx: 196, cy: 74, r: 1.2, o: 0.55 }, { cx: 184, cy: 82, r: 0.8, o: 0.35 },
+    { cx: 198, cy: 44, r: 0.7, o: 0.45 }, { cx: 193, cy: 68, r: 1.1, o: 0.5 },
+    { cx: 200, cy: 58, r: 0.6, o: 0.3 }, { cx: 186, cy: 48, r: 1.3, o: 0.6 },
+    { cx: 202, cy: 35, r: 0.8, o: 0.25 }, { cx: 197, cy: 88, r: 0.9, o: 0.3 },
+    { cx: 178, cy: 22, r: 1.0, o: 0.45 }, { cx: 205, cy: 65, r: 0.6, o: 0.2 },
+  ];
+
   return (
-    <div style={surf({ padding: "22px 24px", display: "flex", alignItems: "center", gap: 18, height: 124 })}>
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 6 }}>
-        <span style={{ fontFamily: SERIF, fontVariantNumeric: "tabular-nums", fontSize: big ? 56 : 38, lineHeight: 1, fontWeight: 600, letterSpacing: "-0.02em", color: TX }}>
+    <div style={{
+      ...surf({ padding: 0, overflow: "hidden" }),
+      height: 200, position: "relative",
+      background: "linear-gradient(135deg, #0d0b14 0%, #110e1a 60%, #0a0810 100%)",
+    }}>
+      {/* Ambient golden glow behind silhouette */}
+      <div style={{
+        position: "absolute", right: -20, top: -20,
+        width: 200, height: 220,
+        background: `radial-gradient(ellipse at 60% 45%, ${A}22 0%, transparent 70%)`,
+        pointerEvents: "none",
+      }} />
+
+      {/* Kuwait silhouette + particles */}
+      <svg
+        width="100%" height="200"
+        viewBox="0 0 280 200"
+        preserveAspectRatio="xMaxYMid meet"
+        style={{ position: "absolute", inset: 0 }}
+      >
+        <defs>
+          {/* Golden gradient fill — bright left, fades right */}
+          <linearGradient id="kw-gold" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stopColor={A} stopOpacity="0.95" />
+            <stop offset="55%"  stopColor={A} stopOpacity="0.80" />
+            <stop offset="85%"  stopColor={A} stopOpacity="0.40" />
+            <stop offset="100%" stopColor={A} stopOpacity="0.05" />
+          </linearGradient>
+          {/* Glow filter */}
+          <filter id="kw-glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+          {/* Clip to keep silhouette only */}
+          <clipPath id="kw-clip">
+            {/* Accurate Kuwait outline — main body + Bubiyan island hint */}
+            <path d="
+              M 88 10
+              L 140 8
+              L 152 14
+              L 162 10
+              L 178 18
+              L 182 32
+              L 186 48
+              L 180 68
+              L 172 82
+              L 175 96
+              L 165 108
+              L 148 114
+              L 120 116
+              L 96 110
+              L 78 96
+              L 68 78
+              L 64 58
+              L 70 36
+              L 80 20
+              Z
+            " />
+          </clipPath>
+        </defs>
+
+        {/* Silhouette fill */}
+        <path
+          d="M 88 10 L 140 8 L 152 14 L 162 10 L 178 18 L 182 32 L 186 48 L 180 68 L 172 82 L 175 96 L 165 108 L 148 114 L 120 116 L 96 110 L 78 96 L 68 78 L 64 58 L 70 36 L 80 20 Z"
+          fill="url(#kw-gold)"
+          filter="url(#kw-glow)"
+          opacity={0.92}
+        />
+        {/* Subtle inner shading */}
+        <path
+          d="M 88 10 L 140 8 L 152 14 L 162 10 L 178 18 L 182 32 L 186 48 L 180 68 L 172 82 L 175 96 L 165 108 L 148 114 L 120 116 L 96 110 L 78 96 L 68 78 L 64 58 L 70 36 L 80 20 Z"
+          fill="none"
+          stroke={A}
+          strokeWidth="0.8"
+          opacity={0.4}
+        />
+
+        {/* Scatter particles */}
+        {particles.map((p, i) => (
+          <circle key={i} cx={p.cx} cy={p.cy} r={p.r} fill={A} opacity={p.o} />
+        ))}
+
+        {/* Kuwait City dot */}
+        <circle cx={158} cy={72} r={3} fill="#0d0b14" opacity={0.9} />
+        <circle cx={158} cy={72} r={1.8} fill={A} opacity={1} />
+        <circle cx={158} cy={72} r={5} fill={A} opacity={0.2} />
+
+        {/* Bar chart — bottom strip */}
+        {bars.map((v, i) => {
+          const barW = 9;
+          const barH = (v / maxBar) * 44;
+          const x = 18 + i * (barW + 4);
+          const y = 190 - barH;
+          const isLast = i === bars.length - 1;
+          return (
+            <rect
+              key={i} x={x} y={y} width={barW} height={barH}
+              rx={2}
+              fill={isLast ? A : "rgba(167,160,184,0.25)"}
+              opacity={isLast ? 1 : 0.7}
+            />
+          );
+        })}
+        {/* Bar chart glow on last bar */}
+        {(() => {
+          const barW = 9;
+          const barH = (bars[bars.length - 1] / maxBar) * 44;
+          const x = 18 + (bars.length - 1) * (barW + 4);
+          const y = 190 - barH;
+          return <rect x={x} y={y} width={barW} height={barH} rx={2} fill={A} opacity={0.35} style={{ filter: `blur(4px)` }} />;
+        })()}
+      </svg>
+
+      {/* Text overlay — left side */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, bottom: 0,
+        display: "flex", flexDirection: "column", justifyContent: "center",
+        padding: "22px 22px 54px",
+        gap: 8,
+      }}>
+        <span style={{ ...LXS }}>IN KUWAIT</span>
+        <span style={{
+          fontFamily: SERIF, fontSize: 64, lineHeight: 1, fontWeight: 600,
+          letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: TX,
+        }}>
           {rank}
         </span>
-        <span style={LXS}>{sub}</span>
-        <span style={{ fontSize: 12, color: deltaColor ?? M, marginTop: 4, fontFamily: MONO }}>{delta}</span>
-      </div>
-      <div style={{ width: 110, height: 70, opacity: 0.95, display: "flex", alignItems: "center" }}>
-        {type === "kuwait" && <KuwaitMapSVG accent />}
-        {type === "arab"   && <ArabWorldSVG />}
-        {type === "line"   && <div style={{ paddingTop: 26 }}><SparkSVG data={[2,3,3,4,5,6,7,8,9,11,12,14]} width={110} height={36} stroke={A} /></div>}
+        <span style={{ fontSize: 13, color: deltaColor ?? M, fontFamily: MONO, letterSpacing: "0.04em" }}>
+          {delta}
+        </span>
       </div>
     </div>
   );
 }
 
-function OutperformingCard() {
+// ── Arab World hero card — dramatic 200px with detailed map ──
+function ArabWorldHeroCard({ rank, delta, deltaColor }: { rank: string; delta: string; deltaColor?: string }) {
+  return (
+    <div style={{
+      ...surf({ padding: 0, overflow: "hidden" }),
+      height: 200, position: "relative",
+      background: "linear-gradient(135deg, #0d0b14 0%, #0e0c1a 55%, #0a0810 100%)",
+    }}>
+      {/* Ambient glow behind map */}
+      <div style={{
+        position: "absolute", right: -10, top: 0,
+        width: 220, height: 200,
+        background: `radial-gradient(ellipse at 55% 50%, rgba(167,160,184,0.08) 0%, transparent 70%)`,
+        pointerEvents: "none",
+      }} />
+
+      {/* Arab World map — right side */}
+      <div style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", opacity: 0.85 }}>
+        <ArabWorldDetailedSVG width={165} height={112} />
+      </div>
+
+      {/* Subtle right-edge fade */}
+      <div style={{
+        position: "absolute", right: 0, top: 0, bottom: 0, width: 60,
+        background: "linear-gradient(to right, transparent, #0d0b14 85%)",
+        pointerEvents: "none",
+      }} />
+
+      {/* Text overlay — left side */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, bottom: 0,
+        display: "flex", flexDirection: "column", justifyContent: "center",
+        padding: "22px 22px 22px",
+        gap: 8, zIndex: 2,
+      }}>
+        <span style={{ ...LXS }}>IN ARAB WORLD</span>
+        <span style={{
+          fontFamily: SERIF, fontSize: 64, lineHeight: 1, fontWeight: 600,
+          letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: TX,
+        }}>
+          {rank}
+        </span>
+        <span style={{ fontSize: 13, color: deltaColor ?? M, fontFamily: MONO, letterSpacing: "0.04em" }}>
+          {delta}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ── Genre sparkline card ──
+function GenreRankCard({ rank, delta, deltaColor }: { rank: string; delta: string; deltaColor?: string }) {
   return (
     <div style={surf({ padding: "22px 24px", display: "flex", alignItems: "center", gap: 18, height: 124 })}>
       <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 6 }}>
-        <span style={LXS}>Outperforming</span>
-        <span style={{ fontFamily: SERIF, fontVariantNumeric: "tabular-nums", fontSize: 56, lineHeight: 1, fontWeight: 600, letterSpacing: "-0.02em", color: A }}>
-          82<span style={{ fontSize: 30, color: TX }}>%</span>
+        <span style={{ fontFamily: SERIF, fontVariantNumeric: "tabular-nums", fontSize: 38, lineHeight: 1, fontWeight: 600, letterSpacing: "-0.02em", color: TX }}>
+          {rank}
         </span>
-        <span style={{ fontSize: 10.5, color: M, letterSpacing: "0.18em", fontFamily: MONO }}>OF CREATORS</span>
+        <span style={LXS}>HORROR CREATORS</span>
+        <span style={{ fontSize: 12, color: deltaColor ?? M, marginTop: 4, fontFamily: MONO }}>{delta}</span>
       </div>
-      <div style={{ width: 130, height: 80 }}>
-        <DottedMapSVG width={130} height={80} />
+      <div style={{ paddingTop: 26 }}>
+        <SparkSVG data={[2,3,3,4,5,6,7,8,9,11,12,14]} width={110} height={36} stroke={A} />
+      </div>
+    </div>
+  );
+}
+
+// ── Outperforming card with gold particle map ──
+function OutperformingCard() {
+  return (
+    <div style={{
+      ...surf({ padding: 0, overflow: "hidden" }),
+      height: 160, position: "relative",
+      background: "linear-gradient(135deg, #0d0b14 0%, #0f0c18 60%, #09080f 100%)",
+    }}>
+      {/* Gold particle glow backdrop */}
+      <div style={{
+        position: "absolute", right: -10, top: -10,
+        width: 220, height: 180,
+        background: `radial-gradient(ellipse at 60% 50%, ${A}12 0%, transparent 65%)`,
+        pointerEvents: "none",
+      }} />
+
+      {/* Gold particle map — right */}
+      <div style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", opacity: 0.9 }}>
+        <GoldParticleArabWorld width={168} height={116} />
+      </div>
+
+      {/* Left-edge fade over map */}
+      <div style={{
+        position: "absolute", left: 0, top: 0, bottom: 0, width: 140,
+        background: "linear-gradient(to right, #0d0b14 40%, transparent 100%)",
+        pointerEvents: "none",
+      }} />
+
+      {/* Text overlay */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, bottom: 0,
+        display: "flex", flexDirection: "column", justifyContent: "center",
+        padding: "18px 22px",
+        gap: 6, zIndex: 2,
+      }}>
+        <span style={LXS}>Outperforming</span>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+          <span style={{ fontFamily: SERIF, fontVariantNumeric: "tabular-nums", fontSize: 56, lineHeight: 1, fontWeight: 600, letterSpacing: "-0.02em", color: A }}>
+            82
+          </span>
+          <span style={{ fontFamily: SERIF, fontSize: 30, color: TX, fontWeight: 600 }}>%</span>
+        </div>
+        <span style={{ fontSize: 10.5, color: M, letterSpacing: "0.18em", fontFamily: MONO }}>OF ARAB CREATORS</span>
       </div>
     </div>
   );
@@ -655,9 +947,9 @@ function RankingsColumn({ kuwaitRank, gccRank, rankMovement, totalFollowers }: {
   const movColor = rankMovement && rankMovement > 0 ? UP : rankMovement && rankMovement < 0 ? DN : M;
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <RankCard rank={`#${kuwaitRank ?? "—"}`}  delta={movLabel} deltaColor={movColor} type="kuwait" sub="IN KUWAIT"     big />
-      <RankCard rank={`#${gccRank ?? "—"}`}     delta={movLabel} deltaColor={movColor} type="arab"   sub="IN ARAB WORLD" big />
-      <RankCard rank="Top 1%"                  delta="Top performance category" type="line" sub="HORROR CREATORS" big={false} />
+      <KuwaitHeroCard rank={`#${kuwaitRank ?? "—"}`} delta={movLabel} deltaColor={movColor} />
+      <ArabWorldHeroCard rank={`#${gccRank ?? "—"}`} delta={movLabel} deltaColor={movColor} />
+      <GenreRankCard rank="Top 1%" delta="Top performance category" deltaColor={A} />
       <OutperformingCard />
     </div>
   );
@@ -676,6 +968,7 @@ function KPIStrip({
   momentumScore,
   rankMovement,
   consistencyScore,
+  isCalibrating = false,
 }: {
   totalFollowers: number | null;
   growth30dPct: number | null;
@@ -685,6 +978,7 @@ function KPIStrip({
   momentumScore: number | null;
   rankMovement: number | null;
   consistencyScore: number | null;
+  isCalibrating?: boolean;
 }) {
   // Format a number or show "—" if unavailable
   function fmtOrDash(n: number | null): string {
@@ -700,68 +994,76 @@ function KPIStrip({
     {
       label: "Total Followers",
       value: totalFollowers !== null ? fmtN(totalFollowers) : "—",
-      delta: growth30dPct,
-      custom: null,
+      delta: isCalibrating ? null : growth30dPct,
+      custom: isCalibrating ? "Tracking Baseline" : null,
       spark: [10,11,12,11,13,14,13,15,16,17,18,19,20,21,22],
       noData: totalFollowers === null,
     },
     {
       label: "30-Day Growth",
-      value: fmtPctOrDash(growth30dPct),
+      value: isCalibrating ? "—" : fmtPctOrDash(growth30dPct),
       delta: null,
-      custom: growth30dDelta !== null ? (growth30dDelta >= 0 ? `+${fmtN(growth30dDelta)}` : fmtN(growth30dDelta)) : "Not enough history",
+      custom: isCalibrating
+        ? "Calibration Active"
+        : growth30dDelta !== null ? (growth30dDelta >= 0 ? `+${fmtN(growth30dDelta)}` : fmtN(growth30dDelta)) : "Not enough history",
       spark: [3,3,4,4,5,5,6,6,7,8,9,10,11,12,13],
-      noData: growth30dPct === null,
+      noData: isCalibrating || growth30dPct === null,
     },
     {
       label: "Weekly Growth",
-      value: fmtPctOrDash(growth7dPct),
+      value: isCalibrating ? "—" : fmtPctOrDash(growth7dPct),
       delta: null,
-      custom: growth7dDelta !== null ? (growth7dDelta >= 0 ? `+${fmtN(growth7dDelta)}` : fmtN(growth7dDelta)) : "Not enough history",
+      custom: isCalibrating
+        ? "History Forming"
+        : growth7dDelta !== null ? (growth7dDelta >= 0 ? `+${fmtN(growth7dDelta)}` : fmtN(growth7dDelta)) : "Not enough history",
       spark: [6,5,7,6,8,7,9,8,10,9,11,10,12,11,13],
-      noData: growth7dPct === null,
+      noData: isCalibrating || growth7dPct === null,
     },
     {
       label: "Momentum Score",
-      value: momentumScore !== null ? String(momentumScore) : "—",
+      value: isCalibrating ? "—" : momentumScore !== null ? String(momentumScore) : "—",
       delta: null,
-      custom: momentumScore !== null
-        ? momentumScore >= 70 ? "Rising Fast" : momentumScore >= 50 ? "Building" : "Stable"
-        : "Not enough history",
+      custom: isCalibrating
+        ? "Calibration Active"
+        : momentumScore !== null
+          ? momentumScore >= 70 ? "Rising Fast" : momentumScore >= 50 ? "Building" : "Stable"
+          : "Not enough history",
       spark: [60,62,64,63,66,68,70,72,75,77,79,82,84,86,88],
-      noData: momentumScore === null,
+      noData: isCalibrating || momentumScore === null,
     },
     {
       label: "Rank Movement",
-      value: rankMovement === null ? "—" : rankMovement > 0 ? `↑ ${rankMovement}` : rankMovement < 0 ? `↓ ${Math.abs(rankMovement)}` : "—",
+      value: isCalibrating ? "—" : rankMovement === null ? "—" : rankMovement > 0 ? `↑ ${rankMovement}` : rankMovement < 0 ? `↓ ${Math.abs(rankMovement)}` : "—",
       delta: null,
-      custom: rankMovement === null ? "Not enough history" : "This Week",
+      custom: isCalibrating ? "Tracking Baseline" : rankMovement === null ? "Not enough history" : "This Week",
       spark: [3,4,3,5,4,6,7,6,8,7,9,10,9,11,12],
-      noData: rankMovement === null,
+      noData: isCalibrating || rankMovement === null,
     },
     {
       label: "Activity Score",
       value: consistencyScore !== null ? `${consistencyScore}%` : "—",
       delta: null,
-      custom: consistencyScore === null ? "Not enough history" : "Active streamer",
+      custom: isCalibrating
+        ? "History Forming"
+        : consistencyScore === null ? "Not enough history" : "Active streamer",
       spark: [65,68,70,72,74,76,78,80,82,83,84,85,86,86,87],
       noData: consistencyScore === null,
     },
     {
       label: "Stream Consistency",
       value: "87%",
-      delta: 6,
-      custom: null,
+      delta: isCalibrating ? null : 6,
+      custom: isCalibrating ? "Calibration Active" : null,
       spark: [65,68,70,72,74,76,78,80,82,83,84,85,86,86,87],
-      noData: false,
+      noData: isCalibrating,
     },
     {
       label: "SAHA Fans",
-      value: "312K",
-      delta: 11.7,
-      custom: null,
+      value: isCalibrating ? "—" : "312K",
+      delta: isCalibrating ? null : 11.7,
+      custom: isCalibrating ? "Tracking Baseline" : null,
       spark: [4,5,5,6,7,7,8,9,10,11,12,13,14,15,16],
-      noData: false,
+      noData: isCalibrating,
     },
   ];
 
@@ -876,10 +1178,10 @@ function CreatorPerformance() {
 // LOCKED TEASER
 // ─────────────────────────────────────────────────────────────────
 
-function LockedTeaser() {
+function LockedTeaser({ isPro = false }: { isPro?: boolean }) {
   const items = ["Historical Rank", "Audience Migration", "Cohort Analysis", "Forecast Index"];
   return (
-    <div style={{ ...surf({ marginTop: 18, height: 96, position: "relative", overflow: "hidden", padding: 0 }) }}>
+    <div style={{ ...surf({ marginTop: 18, height: 96, overflow: "hidden", padding: 0, position: "relative" }) }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", height: "100%" }}>
         {items.map((t, i) => (
           <div key={t} style={{
@@ -892,16 +1194,17 @@ function LockedTeaser() {
           </div>
         ))}
       </div>
-      {/* Blur veil */}
-      <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(6px)", background: "linear-gradient(180deg, rgba(11,10,18,0.55), rgba(11,10,18,0.85))", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16, color: TX }}>
-          <span style={{ fontSize: 15 }}>🔒</span>
-          <span style={{ fontSize: 13.5, letterSpacing: "0.08em" }}>SAHA Analytics Pro · Historical &amp; cohort intelligence</span>
-          <button style={{ height: 34, padding: "0 14px", background: "transparent", border: `1px solid ${A}`, borderRadius: 8, color: A, fontSize: 12.5, cursor: "pointer" }}>
-            Unlock Analytics
-          </button>
+      {!isPro && (
+        <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(6px)", background: "linear-gradient(180deg, rgba(11,10,18,0.55), rgba(11,10,18,0.85))", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16, color: TX }}>
+            <span style={{ fontSize: 15 }}>🔒</span>
+            <span style={{ fontSize: 13.5, letterSpacing: "0.08em" }}>SAHA Analytics Pro · Historical &amp; cohort intelligence</span>
+            <button style={{ height: 34, padding: "0 14px", background: "transparent", border: `1px solid ${A}`, borderRadius: 8, color: A, fontSize: 12.5, cursor: "pointer" }}>
+              Unlock Analytics
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -1362,7 +1665,7 @@ function SAHAReportSummary({
 // LEADERBOARD
 // ─────────────────────────────────────────────────────────────────
 
-function LeaderboardSection({ creators }: { creators: typeof mockAnalyticsData.topCreators }) {
+function LeaderboardSection({ creators, isCalibrating = false }: { creators: typeof mockAnalyticsData.topCreators; isCalibrating?: boolean }) {
   const momentum: Record<number, number[]> = {
     1: [4,5,5,6,6,7,7,8,8,9,10,11],
     2: [3,4,4,5,6,6,7,7,8,9,10,10],
@@ -1412,6 +1715,11 @@ function LeaderboardSection({ creators }: { creators: typeof mockAnalyticsData.t
                       YOU
                     </span>
                   )}
+                  {l.you && isCalibrating && (
+                    <span style={{ display: "inline-flex", alignItems: "center", height: 18, padding: "0 6px", background: `${A}12`, border: `1px solid ${A}30`, borderRadius: 3, fontSize: 9, color: A, letterSpacing: "0.08em", fontFamily: MONO }}>
+                      CALIBRATING
+                    </span>
+                  )}
                   {!l.you && l.scoreDelta >= 6 && (
                     <span style={{ display: "inline-flex", alignItems: "center", height: 18, padding: "0 6px", border: `1px solid ${UP}`, color: UP, borderRadius: 3, fontSize: 9, letterSpacing: "0.1em", fontFamily: MONO }}>HOT</span>
                   )}
@@ -1454,29 +1762,30 @@ function LeaderboardSection({ creators }: { creators: typeof mockAnalyticsData.t
 // LOCKED ANALYTICS BLOCK
 // ─────────────────────────────────────────────────────────────────
 
-function LockedAnalyticsBlock() {
+function LockedAnalyticsBlock({ isPro = false }: { isPro?: boolean }) {
   return (
     <div style={{ marginTop: 18 }}>
-      {/* Full-width blurred chart */}
       <div style={{ ...surf({ padding: 0, height: 220, position: "relative", overflow: "hidden" }) }}>
         <div style={{ padding: 22 }}>
           <span style={LXS}>Advanced Growth Insights</span>
-          <div style={{ marginTop: 16, height: 150, opacity: 0.4 }}>
-            <SparkSVG data={[5,8,6,10,7,12,9,14,11,16,12,17,13,19,15,21,16,23,18,25]} width={900} height={150} stroke={M2} fill />
+          <div style={{ marginTop: 16, height: 150, opacity: isPro ? 1 : 0.4 }}>
+            <SparkSVG data={[5,8,6,10,7,12,9,14,11,16,12,17,13,19,15,21,16,23,18,25]} width={900} height={150} stroke={isPro ? A : M2} fill />
           </div>
         </div>
-        <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(6px)", background: "linear-gradient(180deg, rgba(11,10,18,0.55), rgba(11,10,18,0.85))", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, maxWidth: 420, textAlign: "center" }}>
-            <span style={{ fontSize: 20 }}>🔒</span>
-            <div style={{ fontFamily: SERIF, fontSize: 24, fontWeight: 500, color: TX }}>SAHA Analytics Pro</div>
-            <div style={{ fontSize: 12.5, color: M, lineHeight: 1.6 }}>
-              Unlock historical ranking intelligence, advanced growth tracking, and creator comparison tools.
+        {!isPro && (
+          <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(6px)", background: "linear-gradient(180deg, rgba(11,10,18,0.55), rgba(11,10,18,0.85))", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, maxWidth: 420, textAlign: "center" }}>
+              <span style={{ fontSize: 20 }}>🔒</span>
+              <div style={{ fontFamily: SERIF, fontSize: 24, fontWeight: 500, color: TX }}>SAHA Analytics Pro</div>
+              <div style={{ fontSize: 12.5, color: M, lineHeight: 1.6 }}>
+                Unlock historical ranking intelligence, advanced growth tracking, and creator comparison tools.
+              </div>
+              <button style={{ marginTop: 4, height: 34, padding: "0 14px", background: "transparent", border: `1px solid ${A}`, borderRadius: 8, color: A, fontSize: 12.5, cursor: "pointer" }}>
+                Subscribe to Pro
+              </button>
             </div>
-            <button style={{ marginTop: 4, height: 34, padding: "0 14px", background: "transparent", border: `1px solid ${A}`, borderRadius: 8, color: A, fontSize: 12.5, cursor: "pointer" }}>
-              Subscribe to Pro
-            </button>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -1523,16 +1832,25 @@ export default async function AnalyticsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // Fetch subscription tier for this user
+  const { data: userRow } = await supabase
+    .from("users")
+    .select("subscription_tier")
+    .eq("id", user.id)
+    .maybeSingle();
+  const isPro = (userRow as { subscription_tier?: string } | null)?.subscription_tier === "pro";
+
   const CREATOR_HANDLE = "spiex";
 
   const { data: creatorRaw } = await supabase
     .from("creators")
-    .select("*, platforms:creator_platforms(*), score:creator_scores(*)")
+    .select("*, platforms:creator_platforms(*), score:creator_scores(*), indexed_at, calibration_ends_at, calibration_completed_at")
     .eq("handle", CREATOR_HANDLE)
     .maybeSingle();
 
   const creator = creatorRaw as unknown as CreatorWithStats;
   const creatorId = creatorRaw?.id as string | null ?? null;
+  const cRow = creatorRaw as { indexed_at?: string | null; calibration_ends_at?: string | null; calibration_completed_at?: string | null; created_at?: string | null } | null;
 
   // ── Real analytics data ─────────────────────────────────────────
   type DailyScoreRow = {
@@ -1643,6 +1961,51 @@ export default async function AnalyticsPage() {
   const platformCount = platforms.filter(p => (p.followers ?? 0) > 0).length;
   const growthAvailable = growth30dPct !== null;
 
+  // ── Calibration detection ──────────────────────────────────────
+  // A creator is "calibrating" when:
+  //   - They haven't yet completed 7 days of growth history, AND
+  //   - Their calibration window hasn't expired
+  const hasGrowthHistory = growthList.some(g => g.period === "7d" || g.period === "30d");
+  const snapshotDays = new Set(((snapshotRaw ?? []) as SnapshotRow[]).map((s) => s.snapshot_date)).size;
+
+  const indexedAt = cRow?.indexed_at
+    ? new Date(cRow.indexed_at)
+    : cRow?.created_at ? new Date(cRow.created_at) : null;
+
+  const calibrationEndsAt = cRow?.calibration_ends_at
+    ? new Date(cRow.calibration_ends_at)
+    : indexedAt ? new Date(indexedAt.getTime() + 7 * 86400000) : null;
+
+  // calibration_completed_at overrides everything — if set, never show calibration UI
+  const isCalibrating = !cRow?.calibration_completed_at && (
+    calibrationEndsAt
+      ? Date.now() < calibrationEndsAt.getTime() && !hasGrowthHistory
+      : snapshotDays < 7
+  );
+
+  const msRemaining = calibrationEndsAt
+    ? Math.max(0, calibrationEndsAt.getTime() - Date.now())
+    : null;
+  const daysRemaining    = msRemaining !== null ? Math.floor(msRemaining / 86400000) : null;
+  const hoursRemaining   = msRemaining !== null ? Math.floor((msRemaining % 86400000) / 3600000) : null;
+  const minutesRemaining = msRemaining !== null ? Math.floor((msRemaining % 3600000) / 60000) : null;
+
+  // Projected score range: use available sub-scores to estimate
+  function clamp(v: number, lo: number, hi: number) { return Math.max(lo, Math.min(hi, v)); }
+  const presenceBase  = dailyScore ? Number(dailyScore.presence_score) : platformCount >= 3 ? 70 : platformCount >= 2 ? 55 : 35;
+  const projectedBase = Math.round((presenceBase + 50) / 2); // conservative midpoint
+  const projectedLow  = clamp(projectedBase, 35, 82);
+  const projectedHigh = clamp(projectedLow + 14, 45, 96);
+
+  // Calibration pillars — show what we CAN compute
+  const calibrationPillars = [
+    { k: "Presence",    v: dailyScore ? Math.round(Number(dailyScore.presence_score)) : "—" },
+    { k: "Growth",      v: "—" },
+    { k: "Momentum",    v: "—" },
+    { k: "Consistency", v: "—" },
+    { k: "Rank",        v: "—" },
+  ];
+
   // ── Chart data from snapshots ──────────────────────────────────
   const snapshotList = (snapshotRaw ?? []) as SnapshotRow[];
   const dateMap = new Map<string, Record<string, number>>();
@@ -1696,15 +2059,43 @@ export default async function AnalyticsPage() {
 
         <PageHeader name={creator?.name_en ?? "Spiex"} />
 
+        {/* Calibration strip */}
+        {isCalibrating && (
+          <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 14, height: 32 }}>
+            <span style={{
+              display: "inline-flex", alignItems: "center", gap: 7,
+              height: 22, padding: "0 10px",
+              background: `${A}10`, border: `1px solid ${A}35`,
+              borderRadius: 4, fontSize: 10.5, color: A, fontFamily: MONO, letterSpacing: "0.14em",
+            }}>
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: A, display: "inline-block", opacity: 0.85 }} />
+              CALIBRATION PERIOD ACTIVE
+            </span>
+          </div>
+        )}
+
         {/* Hero — 3 columns */}
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0,40fr) minmax(0,30fr) minmax(0,30fr)", gap: 32, marginTop: 36 }}>
           <IdentityColumn creator={creator} />
-          <CenterColumn
+          {isCalibrating ? (
+            <CalibrationRing
+              projectedLow={projectedLow}
+              projectedHigh={projectedHigh}
+              msRemaining={msRemaining}
+              daysRemaining={daysRemaining}
+              hoursRemaining={hoursRemaining}
+              minutesRemaining={minutesRemaining}
+              pillars={calibrationPillars}
+              isPublic={false}
+            />
+          ) : (
+            <CenterColumn
               score={sahaScore > 0 ? sahaScore : 89}
               momentumScore={momentumScore}
               rankMovement={rankMovement}
               kuwaitRank={kuwaitRank}
             />
+          )}
           <RankingsColumn
             kuwaitRank={kuwaitRank ?? 8}
             gccRank={arabRank ?? 21}
@@ -1722,9 +2113,10 @@ export default async function AnalyticsPage() {
           momentumScore={momentumScore}
           rankMovement={rankMovement}
           consistencyScore={consistencyScore}
+          isCalibrating={isCalibrating}
         />
         <CreatorPerformance />
-        <LockedTeaser />
+        <LockedTeaser isPro={isPro} />
 
         {/* Main analytics */}
         <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "65% 35%", gap: 18 }}>
@@ -1746,7 +2138,7 @@ export default async function AnalyticsPage() {
             consistencyScore={consistencyScore}
             growthAvailable={growthAvailable}
           />
-          <LeaderboardSection creators={mockAnalyticsData.topCreators} />
+          <LeaderboardSection creators={mockAnalyticsData.topCreators} isCalibrating={isCalibrating} />
         </div>
 
         {/* Rivalry + Also Watches — locked sections after prestige content */}
@@ -1755,7 +2147,7 @@ export default async function AnalyticsPage() {
           <AlsoWatches />
         </div>
 
-        <LockedAnalyticsBlock />
+        <LockedAnalyticsBlock isPro={isPro} />
         <Footer />
       </main>
     </div>
