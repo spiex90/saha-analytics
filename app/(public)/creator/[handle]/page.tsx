@@ -1203,6 +1203,36 @@ function LeaderboardSection({ creators, currentHandle }: { creators: Leaderboard
 // LOCKED TEASER
 // ─────────────────────────────────────────────────────────────────
 
+function LockedTeaserBar() {
+  const items = ["Historical Rank", "Audience Migration", "Cohort Analysis", "Forecast Index"];
+  return (
+    <div style={{ ...surf({ marginTop: 18, height: 96, position: "relative", overflow: "hidden", padding: 0 }) }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", height: "100%" }}>
+        {items.map((t, i) => (
+          <div key={t} style={{
+            padding: "18px 24px", borderRight: i < 3 ? `1px solid ${BS}` : "none",
+            display: "flex", flexDirection: "column", justifyContent: "space-between",
+          }}>
+            <span style={LXS}>{t}</span>
+            <div style={{ fontFamily: SERIF, fontSize: 28, color: M2 }}>━ ━ ━</div>
+            <SparkSVG data={[3,4,5,6,5,7,8,7,9,10,11,12]} width={120} height={20} stroke={M2} />
+          </div>
+        ))}
+      </div>
+      {/* Blur veil */}
+      <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(6px)", background: "linear-gradient(180deg, rgba(11,10,18,0.55), rgba(11,10,18,0.85))", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, color: TX }}>
+          <span style={{ fontSize: 15 }}>🔒</span>
+          <span style={{ fontSize: 13.5, letterSpacing: "0.08em" }}>SAHA Analytics Pro · Historical &amp; cohort intelligence</span>
+          <a href="/subscribe" style={{ height: 34, padding: "0 14px", background: "transparent", border: `1px solid ${A}`, borderRadius: 8, color: A, fontSize: 12.5, cursor: "pointer", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+            Subscribe to Pro
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function LockedTeaser() {
   const items = ["Historical Rank", "Audience Migration", "Cohort Analysis", "Forecast Index"];
   return (
@@ -1463,6 +1493,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
         />
 
         <CreatorPerformance />
+        <LockedTeaserBar />
 
         {/* Chart + Platform Table */}
         <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "65% 35%", gap: 18 }}>
