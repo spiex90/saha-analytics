@@ -920,7 +920,8 @@ function RivalrySection({ creatorName, creatorInit }: { creatorName: string; cre
   const left  = { name: creatorName, handle: "@" + creatorName.toLowerCase(), score: 89, tone: "warm", init: creatorInit };
   const right = { name: "عزيزوز",   handle: "@Azizoz",  score: 87, tone: "plum", init: "ع" };
   return (
-    <div style={surf({ padding: 24, height: "100%" })}>
+    <div style={{ ...surf({ padding: 24, height: "100%" }), position: "relative", overflow: "hidden" }}>
+      {/* Content (blurred behind veil) */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22 }}>
         <span style={LXS}>Creator Rivalry</span>
         <span style={{ fontSize: 11.5, color: M }}>Head-to-Head · This Month</span>
@@ -948,6 +949,15 @@ function RivalrySection({ creatorName, creatorInit }: { creatorName: string; cre
         <VsBar left={87} right={83} label="Consistency"       />
         <VsBar left={88} right={81} label="Momentum"          />
       </div>
+      {/* Lock veil */}
+      <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(7px)", background: "linear-gradient(180deg, rgba(11,10,18,0.45), rgba(11,10,18,0.82))", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, textAlign: "center" }}>
+        <span style={{ fontSize: 18 }}>🔒</span>
+        <div style={{ fontFamily: SERIF, fontSize: 18, fontWeight: 500, color: TX }}>Creator Rivalry</div>
+        <div style={{ fontSize: 12, color: M, lineHeight: 1.6, maxWidth: 220 }}>Head-to-head comparisons &amp; rivalry stats are a Pro feature.</div>
+        <a href="/signup" style={{ marginTop: 4, height: 32, padding: "0 14px", background: "transparent", border: `1px solid ${A}`, borderRadius: 8, color: A, fontSize: 12, cursor: "pointer", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+          Unlock Pro
+        </a>
+      </div>
     </div>
   );
 }
@@ -959,7 +969,8 @@ function AlsoWatches() {
     { name: "P4GAM3R",   followers: "986K Followers",  tone: "cool" },
   ];
   return (
-    <div style={surf({ padding: 22 })}>
+    <div style={{ ...surf({ padding: 22 }), position: "relative", overflow: "hidden" }}>
+      {/* Content (blurred behind veil) */}
       <span style={{ ...LXS, display: "block", marginBottom: 12, lineHeight: 1.5 }}>
         Creators Your Audience<br />Also Watches
       </span>
@@ -977,6 +988,15 @@ function AlsoWatches() {
       <button style={{ width: "100%", marginTop: 14, height: 32, justifyContent: "center", fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: M, background: "transparent", border: `1px solid ${BRD}`, borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center" }}>
         View Audience Map
       </button>
+      {/* Lock veil */}
+      <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(7px)", background: "linear-gradient(180deg, rgba(11,10,18,0.45), rgba(11,10,18,0.82))", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, textAlign: "center", padding: "0 20px" }}>
+        <span style={{ fontSize: 18 }}>🔒</span>
+        <div style={{ fontFamily: SERIF, fontSize: 16, fontWeight: 500, color: TX }}>Audience Intelligence</div>
+        <div style={{ fontSize: 11.5, color: M, lineHeight: 1.6 }}>See who your audience also watches.</div>
+        <a href="/signup" style={{ marginTop: 4, height: 30, padding: "0 12px", background: "transparent", border: `1px solid ${A}`, borderRadius: 8, color: A, fontSize: 11.5, cursor: "pointer", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+          Unlock Pro
+        </a>
+      </div>
     </div>
   );
 }
@@ -1175,6 +1195,44 @@ function LeaderboardSection({ creators, currentHandle }: { creators: Leaderboard
           })}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// LOCKED TEASER
+// ─────────────────────────────────────────────────────────────────
+
+function LockedTeaser() {
+  const items = ["Historical Rank", "Audience Migration", "Cohort Analysis", "Forecast Index"];
+  return (
+    <div style={{ ...surf({ marginTop: 18, height: 220, position: "relative", overflow: "hidden", padding: 0 }) }}>
+      <div style={{ padding: 22 }}>
+        <span style={LXS}>Advanced Growth Insights</span>
+        <div style={{ marginTop: 16, height: 150, opacity: 0.4 }}>
+          <SparkSVG data={[5,8,6,10,7,12,9,14,11,16,12,17,13,19,15,21,16,23,18,25]} width={900} height={150} stroke={M2} fill />
+        </div>
+      </div>
+      {/* Teaser row */}
+      <div style={{ position: "absolute", top: 22, left: 22, right: 22, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", opacity: 0.35 }}>
+        {items.map((t, i) => (
+          <div key={t} style={{ padding: "0 16px", borderLeft: i > 0 ? `1px solid ${BS}` : "none" }}>
+            <span style={LXS}>{t}</span>
+            <div style={{ fontFamily: SERIF, fontSize: 24, color: M2, marginTop: 8 }}>━ ━ ━</div>
+          </div>
+        ))}
+      </div>
+      {/* Lock veil */}
+      <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(6px)", background: "linear-gradient(180deg, rgba(11,10,18,0.55), rgba(11,10,18,0.88))", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, textAlign: "center" }}>
+        <span style={{ fontSize: 20 }}>🔒</span>
+        <div style={{ fontFamily: SERIF, fontSize: 24, fontWeight: 500, color: TX }}>SAHA Analytics Pro</div>
+        <div style={{ fontSize: 12.5, color: M, lineHeight: 1.6, maxWidth: 420 }}>
+          Unlock advanced momentum tracking, historical ranking intelligence, and creator comparison tools.
+        </div>
+        <a href="/signup" style={{ marginTop: 4, height: 34, padding: "0 16px", background: "transparent", border: `1px solid ${A}`, borderRadius: 8, color: A, fontSize: 12.5, cursor: "pointer", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+          Unlock Analytics
+        </a>
+      </div>
     </div>
   );
 }
@@ -1428,6 +1486,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
           <LeaderboardSection creators={MOCK_LEADERBOARD} currentHandle={handle} />
         </div>
 
+        <LockedTeaser />
         <Footer />
       </main>
     </div>
