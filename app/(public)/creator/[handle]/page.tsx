@@ -953,9 +953,9 @@ function RivalrySection({ creatorName, creatorInit }: { creatorName: string; cre
       <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(7px)", background: "linear-gradient(180deg, rgba(11,10,18,0.45), rgba(11,10,18,0.82))", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, textAlign: "center" }}>
         <span style={{ fontSize: 18 }}>🔒</span>
         <div style={{ fontFamily: SERIF, fontSize: 18, fontWeight: 500, color: TX }}>Creator Rivalry</div>
-        <div style={{ fontSize: 12, color: M, lineHeight: 1.6, maxWidth: 220 }}>Head-to-head comparisons &amp; rivalry stats are a Pro feature.</div>
-        <a href="/signup" style={{ marginTop: 4, height: 32, padding: "0 14px", background: "transparent", border: `1px solid ${A}`, borderRadius: 8, color: A, fontSize: 12, cursor: "pointer", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
-          Unlock Pro
+        <div style={{ fontSize: 12, color: M, lineHeight: 1.6, maxWidth: 220 }}>Head-to-head comparisons &amp; rivalry stats are available on SAHA Pro.</div>
+        <a href="/subscribe" style={{ marginTop: 4, height: 32, padding: "0 14px", background: "transparent", border: `1px solid ${A}`, borderRadius: 8, color: A, fontSize: 12, cursor: "pointer", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+          Subscribe to Pro
         </a>
       </div>
     </div>
@@ -992,9 +992,9 @@ function AlsoWatches() {
       <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(7px)", background: "linear-gradient(180deg, rgba(11,10,18,0.45), rgba(11,10,18,0.82))", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, textAlign: "center", padding: "0 20px" }}>
         <span style={{ fontSize: 18 }}>🔒</span>
         <div style={{ fontFamily: SERIF, fontSize: 16, fontWeight: 500, color: TX }}>Audience Intelligence</div>
-        <div style={{ fontSize: 11.5, color: M, lineHeight: 1.6 }}>See who your audience also watches.</div>
-        <a href="/signup" style={{ marginTop: 4, height: 30, padding: "0 12px", background: "transparent", border: `1px solid ${A}`, borderRadius: 8, color: A, fontSize: 11.5, cursor: "pointer", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
-          Unlock Pro
+        <div style={{ fontSize: 11.5, color: M, lineHeight: 1.6 }}>Audience overlap data is available on SAHA Pro.</div>
+        <a href="/subscribe" style={{ marginTop: 4, height: 30, padding: "0 12px", background: "transparent", border: `1px solid ${A}`, borderRadius: 8, color: A, fontSize: 11.5, cursor: "pointer", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+          Subscribe to Pro
         </a>
       </div>
     </div>
@@ -1227,10 +1227,10 @@ function LockedTeaser() {
         <span style={{ fontSize: 20 }}>🔒</span>
         <div style={{ fontFamily: SERIF, fontSize: 24, fontWeight: 500, color: TX }}>SAHA Analytics Pro</div>
         <div style={{ fontSize: 12.5, color: M, lineHeight: 1.6, maxWidth: 420 }}>
-          Unlock advanced momentum tracking, historical ranking intelligence, and creator comparison tools.
+          Subscribe to unlock advanced momentum tracking, historical ranking intelligence, and creator comparison tools.
         </div>
-        <a href="/signup" style={{ marginTop: 4, height: 34, padding: "0 16px", background: "transparent", border: `1px solid ${A}`, borderRadius: 8, color: A, fontSize: 12.5, cursor: "pointer", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
-          Unlock Analytics
+        <a href="/subscribe" style={{ marginTop: 4, height: 34, padding: "0 16px", background: "transparent", border: `1px solid ${A}`, borderRadius: 8, color: A, fontSize: 12.5, cursor: "pointer", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+          Subscribe to Pro
         </a>
       </div>
     </div>
