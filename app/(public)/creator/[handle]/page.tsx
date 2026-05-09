@@ -244,7 +244,7 @@ function IdentityColumn({ creator }: { creator: CreatorData }) {
     { k: "Signature Genre", tags: creator.genres?.slice(0, 2) ?? ["Gaming"] },
     { k: "Audience Type",   tags: ["Core Gamers", "18–34"] },
     { k: "Stream Persona",  tags: ["Intense", "Humorous"] },
-    { k: "Viewer Loyalty",  tags: ["Very High", "Top 12%"] },
+    { k: "Activity Score",  tags: ["Active"] },
     { k: "Active Time",     tags: ["7PM – 1AM (KWT)"] },
   ];
 
@@ -635,7 +635,7 @@ function KPIStrip({
     { label: "Weekly Growth",      value: fmtPctOrDash(growth7dPct),   delta: null, custom: growth7dDelta !== null ? `${growth7dDelta >= 0 ? "+" : ""}${fmtN(growth7dDelta)}` : "Not enough history",  spark: [6,5,7,6,8,7,9,8,10,9,11,10,12,11,13], noData: growth7dPct === null },
     { label: "Momentum Score",     value: momentumScore !== null ? String(momentumScore) : "—",  delta: null, custom: momentumScore !== null ? momentumScore >= 70 ? "Rising Fast" : momentumScore >= 50 ? "Building" : "Stable" : "Not enough history", spark: [60,62,64,63,66,68,70,72,75,77,79,82,84,86,88], noData: momentumScore === null },
     { label: "Rank Movement",      value: rankMovement === null ? "—" : rankMovement > 0 ? `↑ ${rankMovement}` : rankMovement < 0 ? `↓ ${Math.abs(rankMovement)}` : "—", delta: null, custom: rankMovement === null ? "Not enough history" : "This Week", spark: [3,4,3,5,4,6,7,6,8,7,9,10,9,11,12], noData: rankMovement === null },
-    { label: "Viewer Loyalty",     value: "92%",  delta: 5,  custom: null, spark: [70,72,74,75,77,79,80,82,84,85,87,88,90,91,92], noData: false },
+    { label: "Activity Score",      value: "—",    delta: null, custom: "Not enough history", spark: [65,68,70,72,74,76,78,80,82,83,84,85,86,86,87], noData: true },
     { label: "Stream Consistency", value: "87%",  delta: 6,  custom: null, spark: [65,68,70,72,74,76,78,80,82,83,84,85,86,86,87], noData: false },
     { label: "SAHA Fans",          value: "312K", delta: 11.7, custom: null, spark: [4,5,5,6,7,7,8,9,10,11,12,13,14,15,16], noData: false },
   ];
@@ -689,7 +689,7 @@ function CreatorPerformance() {
     <div style={surf({ padding: 22, marginTop: 18 })}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
         <span style={LXS}>Creator Performance</span>
-        <span style={{ fontSize: 11.5, color: M }}>Last 30 days · sorted by dominance</span>
+        <span style={{ fontSize: 11.5, color: M }}>Last 30 days · top categories</span>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
         {GAMES.map(g => (
@@ -703,20 +703,6 @@ function CreatorPerformance() {
                 <span style={{ display: "inline-flex", alignItems: "center", height: 20, padding: "0 8px", background: "rgba(11,10,18,0.7)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 3, fontSize: 10, color: M, fontFamily: MONO }}>
                   #{Math.round(100 - g.dominance / 2)}
                 </span>
-              </div>
-            </div>
-            <div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 11.5, color: M }}>Avg Viewers</span>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ fontSize: 14, color: TX, fontVariantNumeric: "tabular-nums", fontWeight: 500 }}>{g.avgViewers}</span>
-                  <Delta value={g.growth} />
-                </div>
-              </div>
-              <div style={{ height: 1, background: BS }} />
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 11.5, color: M }}>Dominance</span>
-                <span style={{ fontSize: 14, color: A, fontVariantNumeric: "tabular-nums", fontWeight: 600 }}>{g.dominance}%</span>
               </div>
             </div>
           </div>
@@ -805,7 +791,6 @@ function PlatformTable({ platforms }: { platforms: { id: string; followers: numb
   const COLORS: Record<string, string> = {
     twitch: "#9147ff", instagram: "#e25555", tiktok: "#5fb8d6", youtube: "#cf6dab", kick: "#53FC18",
   };
-  const RETENTION: Record<string, number> = { twitch: 72, instagram: 68, tiktok: 71, youtube: 74, kick: 66 };
   return (
     <div style={surf({ padding: 22, height: "100%" })}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
@@ -814,15 +799,14 @@ function PlatformTable({ platforms }: { platforms: { id: string; followers: numb
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
-            {["", "Followers", "Growth", "Retention", "Trend"].map((h, i) => (
-              <th key={h} style={{ textAlign: i === 4 ? "right" : "left", padding: "0 12px 10px", fontSize: 10.5, color: M, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", borderBottom: `1px solid ${BRD}` }}>{h}</th>
+            {["", "Followers", "Growth", "Trend"].map((h, i) => (
+              <th key={h} style={{ textAlign: i === 3 ? "right" : "left", padding: "0 12px 10px", fontSize: 10.5, color: M, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", borderBottom: `1px solid ${BRD}` }}>{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {platforms.map(p => {
             const color = COLORS[p.id] ?? M;
-            const ret = RETENTION[p.id] ?? 70;
             return (
               <tr key={p.id} style={{ borderBottom: `1px solid ${BS}` }}>
                 <td style={{ padding: "10px 12px" }}>
@@ -835,7 +819,6 @@ function PlatformTable({ platforms }: { platforms: { id: string; followers: numb
                 </td>
                 <td style={{ padding: "10px 12px", fontSize: 13, fontVariantNumeric: "tabular-nums", color: TX }}>{fmtN(p.followers)}</td>
                 <td style={{ padding: "10px 12px" }}>{p.growth !== null ? <Delta value={p.growth} /> : <span style={{ color: M }}>—</span>}</td>
-                <td style={{ padding: "10px 12px", fontSize: 13, color: M, fontVariantNumeric: "tabular-nums" }}>{ret}%</td>
                 <td style={{ padding: "10px 12px", textAlign: "right" }}>
                   <SparkSVG data={p.sparkData} width={84} height={20} stroke={color} />
                 </td>
@@ -944,7 +927,7 @@ function RivalrySection({ creatorName, creatorInit }: { creatorName: string; cre
         </div>
       </div>
       <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 14 }}>
-        <VsBar left={32} right={28} label="Audience Overlap"  />
+        <VsBar left={14} right={11} label="Rank Gap"           />
         <VsBar left={14} right={9}  label="Growth Race (30D)" accent />
         <VsBar left={87} right={83} label="Consistency"       />
         <VsBar left={88} right={81} label="Momentum"          />
@@ -1067,53 +1050,56 @@ function BadgeShowcase() {
 // PUBLIC INSIGHTS
 // ─────────────────────────────────────────────────────────────────
 
-function genTrend(seed: number, len: number): number[] {
-  let v = 5;
-  return Array.from({ length: len }, (_, i) => {
-    v += Math.sin(seed + i) * 1.2 + (i % 3 === 0 ? 0.3 : -0.1);
-    return +v.toFixed(2);
+function PublicInsights({ momentumScore, rankMovement, platformCount }: {
+  momentumScore: number | null; rankMovement: number | null; platformCount: number;
+}) {
+  const notes: { headline: string; body: string; tone: "up" | "neutral" | "muted" }[] = [];
+
+  if (momentumScore !== null && momentumScore >= 70) {
+    notes.push({ headline: "Strong momentum in Gaming", body: `Momentum score at ${momentumScore} — outperforming most peers in cohort.`, tone: "up" });
+  } else if (momentumScore !== null) {
+    notes.push({ headline: "Momentum building", body: `Current momentum score: ${momentumScore}. Tracking steady week-over-week.`, tone: "neutral" });
+  } else {
+    notes.push({ headline: "Momentum data pending", body: "Score will appear after 7 days of snapshot history.", tone: "muted" });
+  }
+
+  if (rankMovement !== null && rankMovement > 0) {
+    notes.push({ headline: `Climbed ${rankMovement} ${rankMovement === 1 ? "place" : "places"} this week`, body: "Ranking trajectory positive across the Kuwait cohort.", tone: "up" });
+  } else if (rankMovement !== null && rankMovement < 0) {
+    notes.push({ headline: `Slipped ${Math.abs(rankMovement)} ${Math.abs(rankMovement) === 1 ? "place" : "places"}`, body: "Cohort competition intensified this week.", tone: "neutral" });
+  } else {
+    notes.push({ headline: "Ranking stable this week", body: "Position held against cohort movement.", tone: "neutral" });
+  }
+
+  notes.push({
+    headline: `Cross-platform presence: ${platformCount} ${platformCount === 1 ? "platform" : "platforms"} active`,
+    body: platformCount >= 3 ? "Diversified distribution improves discovery surface area." : "Expanding platform footprint may improve discovery.",
+    tone: platformCount >= 3 ? "up" : "neutral",
   });
-}
 
-const INSIGHTS_DATA = [
-  { metric: "Viewer Loyalty",     your: "92%",    percentile: "Top 12%", delta: 5,  down: false },
-  { metric: "Avg Watch Duration", your: "1h 48m", percentile: "Top 18%", delta: 6,  down: false },
-  { metric: "Stream Consistency", your: "87%",    percentile: "Top 15%", delta: 6,  down: false },
-  { metric: "Audience Overlap",   your: "32%",    percentile: "Top 22%", delta: -2, down: true  },
-  { metric: "Growth Velocity",    your: "14.3%",  percentile: "Top 11%", delta: 3,  down: false },
-  { metric: "Retention Score",    your: "72%",    percentile: "Top 16%", delta: 4,  down: false },
-  { metric: "Discovery Rate",     your: "26%",    percentile: "Top 20%", delta: 5,  down: false },
-];
+  notes.push({ headline: "Growth data requires more history", body: "30-day growth signal becomes available after sufficient snapshot history.", tone: "muted" });
 
-function PublicInsights() {
   return (
     <div style={surf({ padding: 22, height: "100%" })}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-        <span style={LXS}>Public Creator Insights</span>
-        <span style={{ fontSize: 11.5, color: M }}>Audited · 30 day window</span>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <span style={LXS}>SAHA Report · Analyst Notes</span>
+        <span style={{ fontSize: 11.5, color: M }}>Auto-generated · 30 day window</span>
       </div>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            {["Metric", "Your Stats", "Percentile", "vs 30 Days", "Trend"].map((h, i) => (
-              <th key={h} style={{ textAlign: i === 4 ? "right" : "left", padding: "0 12px 10px", fontSize: 10.5, color: M, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", borderBottom: `1px solid ${BRD}` }}>{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {INSIGHTS_DATA.map((row, idx) => (
-            <tr key={row.metric} style={{ borderBottom: `1px solid ${BS}` }}>
-              <td style={{ padding: "10px 12px", fontSize: 13, color: TX }}>{row.metric}</td>
-              <td style={{ padding: "10px 12px", fontSize: 13, fontVariantNumeric: "tabular-nums", color: TX }}>{row.your}</td>
-              <td style={{ padding: "10px 12px", fontSize: 12.5, color: M, fontVariantNumeric: "tabular-nums" }}>{row.percentile}</td>
-              <td style={{ padding: "10px 12px" }}><Delta value={row.delta} /></td>
-              <td style={{ padding: "10px 12px", textAlign: "right" }}>
-                <SparkSVG data={genTrend(idx * 40, 7)} width={120} height={22} stroke={row.down ? DN : A} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {notes.map((n, i) => (
+          <div key={i} style={{
+            padding: "14px 16px",
+            background: n.tone === "muted" ? "transparent" : SF,
+            border: `1px solid ${n.tone === "up" ? `${A}40` : BRD}`,
+            borderRadius: 10,
+            display: "flex", flexDirection: "column", gap: 4,
+            opacity: n.tone === "muted" ? 0.65 : 1,
+          }}>
+            <span style={{ fontFamily: SERIF, fontSize: 16, color: TX, fontWeight: 500, letterSpacing: "-0.005em" }}>{n.headline}</span>
+            <span style={{ fontSize: 12.5, color: M, lineHeight: 1.55 }}>{n.body}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -1513,7 +1499,11 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
         {/* Public Insights + Leaderboard */}
         <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: 18 }}>
-          <PublicInsights />
+          <PublicInsights
+              momentumScore={momentumScore}
+              rankMovement={rankMovement}
+              platformCount={platforms.filter((p: {followers?: number}) => (p.followers ?? 0) > 0).length}
+            />
           <LeaderboardSection creators={MOCK_LEADERBOARD} currentHandle={handle} />
         </div>
 
