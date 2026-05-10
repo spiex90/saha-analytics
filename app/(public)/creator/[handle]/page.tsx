@@ -206,14 +206,14 @@ function GoldParticleArabWorld({ width = 160, height = 110 }: { width?: number; 
 
 function PageHeader({ name, isLive }: { name: string; isLive: boolean }) {
   return (
-    <div style={{ marginTop: 36, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    <div className="cp-header-row">
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         <span style={LXS}>Creator Profile</span>
-        <h1 style={{ margin: 0, fontSize: 36, fontWeight: 500, letterSpacing: "-0.01em", fontFamily: SERIF, color: TX }}>
+        <h1 style={{ margin: 0, fontSize: "clamp(22px, 5vw, 36px)", fontWeight: 500, letterSpacing: "-0.01em", fontFamily: SERIF, color: TX }}>
           {name}
         </h1>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div className="flex flex-wrap items-center gap-2">
         {isLive && (
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 22, padding: "0 9px", border: `1px solid ${BRD}`, borderRadius: 4, fontSize: 11, color: TX }}>
             <span className="live-dot-v2" style={{ width: 6, height: 6, borderRadius: "50%", background: "#e25555", display: "inline-block" }} />
@@ -292,7 +292,7 @@ function IdentityColumn({ creator }: { creator: CreatorData }) {
           {/* Name + meta */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10, paddingTop: 4, flex: 1 }}>
             {/* Name row */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+            <div className="flex flex-wrap items-start justify-between gap-3">
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <span style={{ fontFamily: ARABIC, fontSize: 36, fontWeight: 600, lineHeight: 1, color: TX }}>
                   {creator.name_ar || creator.name_en || creator.handle}
@@ -300,7 +300,7 @@ function IdentityColumn({ creator }: { creator: CreatorData }) {
                 {creator.is_verified && <VerifiedBadge />}
               </div>
               {/* Action buttons */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+              <div className="flex flex-wrap items-center gap-2">
                 <button style={{
                   display: "inline-flex", alignItems: "center", gap: 7,
                   height: 36, padding: "0 14px",
@@ -353,7 +353,7 @@ function IdentityColumn({ creator }: { creator: CreatorData }) {
         </div>
 
         {/* Platform grid */}
-        <div style={{ marginTop: 22, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+        <div className="cp-platform-grid">
           {platforms.map(p => {
             const color = PLAT_COLORS[p.platform] ?? M;
             return (
@@ -406,7 +406,7 @@ function IdentityColumn({ creator }: { creator: CreatorData }) {
       {/* Stream Schedule */}
       <div style={surf({ padding: 20 })}>
         <span style={LXS}>Stream Schedule</span>
-        <div style={{ marginTop: 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+        <div className="cp-stream-schedule" style={{ marginTop: 14 }}>
           {schedule.map(sl => (
             <div key={sl.day} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <span style={{ fontSize: 10.5, letterSpacing: "0.16em", color: M, fontWeight: 500, fontFamily: MONO }}>{sl.day}</span>
@@ -463,8 +463,8 @@ function CenterColumn({ score, momentumScore }: { score: number; momentumScore: 
         </div>
 
         {/* Ring */}
-        <div style={{ position: "relative", width: size, margin: "0 auto", height: size, flexShrink: 0 }}>
-          <svg width={size} height={size} style={{ position: "absolute", inset: 0 }}>
+        <div className="cp-score-ring">
+          <svg width="100%" height="100%" viewBox={`0 0 ${size} ${size}`} style={{ position: "absolute", inset: 0 }}>
             {ticks.map((t, i) => (
               <line key={i} x1={t.x1.toFixed(2)} y1={t.y1.toFixed(2)} x2={t.x2.toFixed(2)} y2={t.y2.toFixed(2)}
                 stroke={t.long ? "rgba(245,239,224,0.18)" : "rgba(245,239,224,0.07)"}
@@ -472,7 +472,7 @@ function CenterColumn({ score, momentumScore }: { score: number; momentumScore: 
             ))}
           </svg>
 
-          <svg width={size} height={size} style={{ position: "absolute", inset: 0, transform: "rotate(-90deg)" }}>
+          <svg width="100%" height="100%" viewBox={`0 0 ${size} ${size}`} style={{ position: "absolute", inset: 0, transform: "rotate(-90deg)" }}>
             <circle cx={size / 2} cy={size / 2} r={radius - 4} fill="rgba(0,0,0,0.35)" />
             <circle cx={size / 2} cy={size / 2} r={radius} stroke="rgba(255,255,255,0.06)" strokeWidth={5} fill="none" />
             <circle cx={size / 2} cy={size / 2} r={radius}
@@ -490,7 +490,7 @@ function CenterColumn({ score, momentumScore }: { score: number; momentumScore: 
           {/* Center text */}
           <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
             <span style={{ fontSize: 10.5, letterSpacing: "0.28em", color: M, fontFamily: MONO }}>SAHA SCORE</span>
-            <span style={{ fontFamily: SERIF, fontSize: 88, lineHeight: 0.95, fontWeight: 600, marginTop: 6, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: TX }}>
+            <span className="cp-score-number" style={{ fontFamily: SERIF, lineHeight: 0.95, fontWeight: 600, marginTop: 6, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: TX }}>
               {score}
             </span>
             <span style={{ fontSize: 12.5, letterSpacing: "0.32em", color: A, marginTop: 8, fontFamily: MONO }}>{scoreLabel}</span>
@@ -499,7 +499,7 @@ function CenterColumn({ score, momentumScore }: { score: number; momentumScore: 
         </div>
 
         {/* Sub-pillars */}
-        <div style={{ display: "flex", gap: 0, borderTop: `1px solid ${BS}`, marginTop: 18 }}>
+        <div className="cp-sub-pillars" style={{ borderTop: `1px solid ${BS}`, marginTop: 18 }}>
           {pillars.map((p, idx) => (
             <div key={p.k} style={{
               flex: 1, padding: "16px 0 18px", textAlign: "center",
@@ -748,7 +748,7 @@ function KPIStrip({
   ];
 
   return (
-    <div style={{ marginTop: 24, display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: 10 }}>
+    <div className="cp-kpi-strip">
       {cards.map(k => (
         <div key={k.label} style={surf({ padding: "14px 14px", height: 120, display: "flex", flexDirection: "column", justifyContent: "space-between", minWidth: 0, overflow: "hidden" })}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minWidth: 0 }}>
@@ -798,7 +798,7 @@ function CreatorPerformance() {
         <span style={LXS}>Creator Performance</span>
         <span style={{ fontSize: 11.5, color: M }}>Last 30 days · top categories</span>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+      <div className="cp-game-grid">
         {GAMES.map(g => (
           <div key={g.title} style={{ border: `1px solid ${BRD}`, borderRadius: 14, overflow: "hidden", background: SF }}>
             <div style={{ height: 130, position: "relative" }}>
@@ -903,6 +903,7 @@ function PlatformTable({ platforms }: { platforms: { id: string; followers: numb
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
         <span style={LXS}>Platform Performance</span>
       </div>
+      <div className="cp-table-scroll">
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
@@ -934,6 +935,7 @@ function PlatformTable({ platforms }: { platforms: { id: string; followers: numb
           })}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
@@ -962,14 +964,14 @@ function RankingMovementSection({ kuwaitRank, arabRank, rankMovement }: {
           Updated 2 minutes ago · cohort: Gaming Creators · Kuwait
         </span>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 0 }}>
+      <div className="cp-ranking-grid">
         {cells.map((c, i) => (
           <div key={i} style={{
-            padding: "14px 22px", borderLeft: i > 0 ? `1px solid ${BS}` : "none",
+            padding: "14px 16px", borderLeft: i > 0 ? `1px solid ${BS}` : "none",
             display: "flex", flexDirection: "column", gap: 12,
             minHeight: 110, justifyContent: "center", alignItems: "center", textAlign: "center",
           }}>
-            <span style={{ fontFamily: SERIF, fontVariantNumeric: "tabular-nums", fontSize: 52, lineHeight: 1, fontWeight: 500, letterSpacing: "-0.02em", color: c.accent ? A : TX, whiteSpace: "nowrap" }}>
+            <span style={{ fontFamily: SERIF, fontVariantNumeric: "tabular-nums", fontSize: "clamp(28px, 5vw, 52px)", lineHeight: 1, fontWeight: 500, letterSpacing: "-0.02em", color: c.accent ? A : TX, whiteSpace: "nowrap" }}>
               {c.value}
             </span>
             <span style={{ fontSize: 10.5, letterSpacing: "0.18em", textTransform: "uppercase", color: M, maxWidth: 180, lineHeight: 1.4 }}>
@@ -1127,7 +1129,7 @@ function BadgeShowcase() {
         <span style={LXS}>Certifications · Badges</span>
         <span style={{ fontSize: 11.5, color: M }}>7 of 24 earned</span>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 12 }}>
+      <div className="cp-badge-grid">
         {BADGES.map(b => (
           <div key={b.name} style={{
             padding: "20px 14px 16px", border: `1px solid ${BRD}`, borderRadius: 12,
@@ -1248,6 +1250,7 @@ function LeaderboardSection({ creators, currentHandle }: { creators: Leaderboard
           ))}
         </div>
       </div>
+      <div className="cp-leaderboard-scroll">
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
@@ -1288,6 +1291,7 @@ function LeaderboardSection({ creators, currentHandle }: { creators: Leaderboard
           })}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
@@ -1300,7 +1304,7 @@ function LockedTeaserBar() {
   const items = ["Historical Rank", "Audience Migration", "Cohort Analysis", "Forecast Index"];
   return (
     <div style={{ ...surf({ marginTop: 18, height: 96, position: "relative", overflow: "hidden", padding: 0 }) }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", height: "100%" }}>
+      <div className="cp-locked-bar-grid">
         {items.map((t, i) => (
           <div key={t} style={{
             padding: "18px 24px", borderRight: i < 3 ? `1px solid ${BS}` : "none",
@@ -1366,7 +1370,7 @@ function LockedTeaser() {
 
 function Footer() {
   return (
-    <div style={{ marginTop: 56, padding: "32px 0 56px", borderTop: `1px solid ${BRD}`, display: "grid", gridTemplateColumns: "1fr auto", gap: 24, alignItems: "center" }}>
+    <div className="cp-footer-grid" style={{ borderTop: `1px solid ${BRD}` }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontFamily: SERIF, fontSize: 18, fontWeight: 600, color: TX }}>SAHA</span>
@@ -1376,7 +1380,7 @@ function Footer() {
           Public ranking infrastructure for the Arab creator economy.
         </span>
       </div>
-      <div style={{ display: "flex", gap: 28, fontSize: 11.5, color: M2, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+      <div className="cp-btn-row" style={{ fontSize: 11.5, color: M2, letterSpacing: "0.06em", textTransform: "uppercase" }}>
         {["About", "Methodology", "API", "Press", "Privacy"].map(l => (
           <span key={l} style={{ cursor: "pointer" }}>{l}</span>
         ))}
@@ -1597,9 +1601,9 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
   const creatorInit = (creator.name_ar || creator.name_en || creator.handle).slice(0, 1).toUpperCase();
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0B0A12" }}>
+    <div style={{ minHeight: "100vh", background: "#0B0A12", overflowX: "hidden" }}>
       <HeaderPublic />
-      <main style={{ maxWidth: 1680, margin: "0 auto", padding: "0 48px 48px", position: "relative", zIndex: 1 }}>
+      <main className="mx-auto max-w-[1680px] px-4 md:px-12 pb-12 overflow-x-hidden relative z-[1]">
 
         <PageHeader name={displayName} isLive={creator.is_live} />
 
@@ -1619,7 +1623,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
         )}
 
         {/* Hero — 3 columns */}
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,40fr) minmax(0,30fr) minmax(0,30fr)", gap: 32, marginTop: 36 }}>
+        <div className="cp-hero-grid">
           <IdentityColumn creator={creator} />
           {isCalibrating ? (
             <CalibrationRing
@@ -1657,7 +1661,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
         <LockedTeaserBar />
 
         {/* Chart + Platform Table */}
-        <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "65% 35%", gap: 18 }}>
+        <div className="cp-two-col cp-chart-split">
           <ChartPanel chartData={chartData} />
           <PlatformTable platforms={platformData} />
         </div>
@@ -1665,7 +1669,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
         <RankingMovementSection kuwaitRank={kuwaitRank} arabRank={arabRank} rankMovement={rankMovement} />
 
         {/* Rivalry + Also Watches */}
-        <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "1.55fr 1fr", gap: 18 }}>
+        <div className="cp-two-col cp-rivalry-split">
           <RivalrySection creatorName={displayName} creatorInit={creatorInit} />
           <AlsoWatches />
         </div>
@@ -1673,7 +1677,7 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
         <BadgeShowcase />
 
         {/* Public Insights + Leaderboard */}
-        <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: 18 }}>
+        <div className="cp-two-col cp-insights-split">
           <PublicInsights
               momentumScore={momentumScore}
               rankMovement={rankMovement}
